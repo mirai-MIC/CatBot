@@ -10,7 +10,7 @@ QQ群: 620428906
 
 ## 需要做的
 ### 开发文档
-https://www.yuque.com/simpler-robot/simpler-robot-doc/wyt74o
+https://simbot.forte.love/
 
 ### fork/clone
 fork或者clone此项目到你的本地，并使用IDE工具打开并构建它。

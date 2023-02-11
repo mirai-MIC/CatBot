@@ -1,0 +1,14 @@
+{
+  "component": "simbot.mirai",
+  "code": qq号,
+  "passwordInfo": {
+    "type": "text",
+    "text": "密码"
+  },
+  "config": {
+    "protocol": "IPAD",
+    "deviceInfo": {
+      "type": "file_based"
+    }
+  }
+}

@@ -18,7 +18,7 @@ fork或者clone此项目到你的本地，并使用IDE工具打开并构建它�
 
 根据目录下的文件调整、删改，修改为你的bot的配置信息。
 
-**xxx.yml**
+**simbot.bot.json**
 
 ```yml
 {
@@ -36,12 +36,26 @@ fork或者clone此项目到你的本地，并使用IDE工具打开并构建它�
   }
 }
 ```
+**application.yml**
+
+```yml
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: username
+    password: password
+    url: jdbc:mysql://localhost:3306/signsql
+#    将数据库账户密码替换自己的
+#    数据库文件: src/main/resources/signsql.sql
+
+```
+
 
 ### 阅读
 - [listener](src/main/java/love/simbot/example/listener) 包下为一些监听函数示例。阅读它们的注释，并可以试着修改它们。
 
 ### 运行
-执行[SimbotExampleApplication](src/main/java/love/simbot/example/SimbotExampleApplication.java) 中的main方法。
+执行[SimbotApp](src/main/java/org/Simbot/SimbotApp.java) 中的main方法。
 
 ### 验证
 如果第一次登陆启动程序 会出现滑块验证
@@ -62,7 +76,7 @@ fork或者clone此项目到你的本地，并使用IDE工具打开并构建它�
 * openAI
 * 青年大学习
 * 小爱同学聊天
-* 基础的管理眼插件
+* 基础的管理员插件
 
 
 ## 这是我的交流群

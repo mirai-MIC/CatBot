@@ -1,11 +1,5 @@
 package org.Simbot.utils;
 
-/*
-  @author mirai
- * @version 1.0
- * @packAge: org.Simbot.utils
- * @date 2022/12/6 17:56
- */
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -33,7 +27,7 @@ import java.util.Objects;
 /**
  * HttpClient工具类
  *
- * @author ZhangYuanqiang
+ * @author mirai-MIC
  * @since 2021-06-10
  */
 public class HttpUtils {

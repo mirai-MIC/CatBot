@@ -1,9 +1,5 @@
 # MusicCatBot
 基于simbot3.0框架新版的QQ机器人
-# 这是一个simbot框架的机器人项目
-
-
-
 
 ## 需要做的
 ### 开发文档
@@ -12,7 +8,7 @@ https://simbot.forte.love/
 ### fork/clone
 fork或者clone此项目到你的本地，并使用IDE工具打开并构建它。
 
-### 修改配置文件
+## 修改配置文件
 
 打开目录 【src/main/resources/simbot.yml】
 

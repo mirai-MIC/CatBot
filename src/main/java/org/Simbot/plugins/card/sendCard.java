@@ -5,16 +5,12 @@ import love.forte.simboot.annotation.Filter;
 import love.forte.simboot.annotation.FilterValue;
 import love.forte.simboot.annotation.Listener;
 import love.forte.simboot.filter.MatchType;
-import love.forte.simbot.component.mirai.message.MiraiAudio;
-import love.forte.simbot.component.mirai.message.MiraiSendOnlyAudio;
 import love.forte.simbot.component.mirai.message.SimbotOriginalMiraiMessage;
 import love.forte.simbot.event.GroupMessageEvent;
-import love.forte.simbot.resources.Resource;
 import net.mamoe.mirai.message.data.LightApp;
 import org.springframework.stereotype.Component;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * @BelongsProject: simbot

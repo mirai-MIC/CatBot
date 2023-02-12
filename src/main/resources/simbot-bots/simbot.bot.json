@@ -1,10 +1,9 @@
-
 {
   "component": "simbot.mirai",
   "code": code,
   "passwordInfo": {
     "type": "text",
-    "text": "pad"
+    "text": "text"
   },
   "config": {
     "protocol": "IPAD",

@@ -44,5 +44,6 @@ public class getLearning {
         builder.text("主页: " + gsonDataData.getUrl() + "\n");
         builder.image(Resource.of(new URL(gsonDataData.getImg())));
         event.getSource().sendBlocking(builder.build());
+
     }
 }

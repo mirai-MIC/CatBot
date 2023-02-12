@@ -1,9 +1,9 @@
 {
   "component": "simbot.mirai",
-  "code": qq号,
+  "code": code,
   "passwordInfo": {
     "type": "text",
-    "text": "密码"
+    "text": "pad"
   },
   "config": {
     "protocol": "IPAD",

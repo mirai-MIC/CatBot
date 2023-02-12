@@ -13,6 +13,7 @@ import love.forte.simbot.message.MessagesBuilder;
 import love.forte.simbot.resources.Resource;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -62,15 +63,18 @@ public class SendMsgUtil {
      * @param msg
      * @param image
      * @return
-     * @throws MalformedURLException
      */
-    public static MessageReceipt sendSimpleGroupImage(Group group, ID id, String msg, String image) throws MalformedURLException {
+    public static MessageReceipt sendSimpleGroupImage(Group group, ID id, String msg) {
         MessagesBuilder messagesBuilder = new MessagesBuilder();
         messagesBuilder.at(id);
         messagesBuilder.text("\n");
         messagesBuilder.text(msg);
         messagesBuilder.text("\n");
-        messagesBuilder.image(Resource.of(new URL(image)));
+        try {
+            messagesBuilder.image(Resource.of(new URL(HttpUtils.sendGet("http://ap1.iw233.cn/api.php?sort=iw233"))));
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
         return group.sendBlocking(messagesBuilder.build());
     }
     /**

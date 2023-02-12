@@ -38,7 +38,8 @@ public class GroupMemberAddListener {
         if (event.getGroup().getBot().getId().equals(after.getId())) {
             return;
         }
-        SendMsgUtil.sendSimpleGroupImage(group, after.getId(), "欢迎入群~~~", HttpUtils.sendGet("http://ap1.iw233.cn/api.php?sort=yin"));
+        SendMsgUtil.sendSimpleGroupImage(group,after.getId(),"欢迎入群");
+        SendMsgUtil.sendSimpleGroupMsg(group,after.getId()+"  欢迎入群~~~~~");
     }
 
 }

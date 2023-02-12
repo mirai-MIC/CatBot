@@ -20,6 +20,8 @@ fork或者clone此项目到你的本地，并使用IDE工具打开并构建它�
 
 **simbot.bot.json**
 
+账号配置[bot.json](src/main/resources/simbot-bots/simbot.bot.json)
+
 ```yml
 {
   "component": "simbot.mirai",
@@ -51,8 +53,19 @@ spring:
 ```
 
 
+## apiKey配置
+
+
+修改配置 [app](cache/application.properties)
+
+**application.properties**
+```properties
+user.openai= openAi官方Api
+user.searchImage= saucenao.com注册并复制key
+```
+
 ### 阅读
-- [listener](src/main/java/love/simbot/example/listener) 包下为一些监听函数示例。阅读它们的注释，并可以试着修改它们。
+- [listener](src/main/java/org/Simbot/listens/ListenGroup.java) 包下为一些监听函数示例。阅读它们的注释，并可以试着修改它们。
 
 ### 运行
 执行[SimbotApp](src/main/java/org/Simbot/SimbotApp.java) 中的main方法。

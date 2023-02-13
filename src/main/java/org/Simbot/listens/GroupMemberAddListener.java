@@ -5,7 +5,6 @@ import love.forte.simboot.annotation.Listener;
 import love.forte.simbot.component.mirai.event.MiraiMemberJoinEvent;
 import love.forte.simbot.definition.Group;
 import love.forte.simbot.definition.GroupMember;
-import org.Simbot.utils.HttpUtils;
 import org.Simbot.utils.SendMsgUtil;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +38,6 @@ public class GroupMemberAddListener {
             return;
         }
         SendMsgUtil.sendSimpleGroupImage(group,after.getId(),"欢迎入群");
-        SendMsgUtil.sendSimpleGroupMsg(group,after.getId()+"  欢迎入群~~~~~");
     }
 
 }

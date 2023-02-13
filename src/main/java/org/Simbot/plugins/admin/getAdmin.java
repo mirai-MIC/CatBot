@@ -52,7 +52,7 @@ public class getAdmin {
 
     @ContentTrim
     @Listener
-    @Filter(value = "k/{{accountCode}}", matchType = MatchType.REGEX_MATCHES)
+    @Filter(value = "k/ {{accountCode}}", matchType = MatchType.REGEX_MATCHES)
     public void ban(ChatRoomMessageEvent chatRoomMessageEvent, GroupMessageEvent event, @FilterValue("accountCode") String accountCode) {
         boolean adminBot = event.getGroup().getBot().toMember().isAdmin();
         boolean adminUser = event.getAuthor().isAdmin();

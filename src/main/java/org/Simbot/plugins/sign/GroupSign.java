@@ -26,6 +26,7 @@ public class GroupSign {
     @Autowired
     private dbUtils getDb;
 
+
     /**
      * 签到注册
      *

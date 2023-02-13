@@ -37,7 +37,7 @@ public class GroupMemberAddListener {
         if (event.getGroup().getBot().getId().equals(after.getId())) {
             return;
         }
-        SendMsgUtil.sendSimpleGroupImage(group,after.getId(),"欢迎入群");
+        SendMsgUtil.sendSimpleGroupImage(group, after.getId(), "欢迎入群");
     }
 
 }

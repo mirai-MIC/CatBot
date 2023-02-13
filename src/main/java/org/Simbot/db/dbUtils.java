@@ -58,7 +58,7 @@ public class dbUtils {
      * @param id
      * @param Time
      */
-    public void setSign(ID id,String Time) {
+    public void setSign(ID id, String Time) {
         String time = "'" + Time + "'";
         String IdStr = "'" + id + "'";
 
@@ -94,8 +94,6 @@ public class dbUtils {
     }
 
     /**
-     *
-     *
      * @param id
      * @return
      */

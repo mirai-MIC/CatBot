@@ -14,7 +14,6 @@ import love.forte.simbot.resources.Resource;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 @Slf4j
@@ -29,6 +28,7 @@ public class SendMsgUtil {
     public static MessageReceipt sendSimpleGroupMsg(GroupMessageEvent event, String msg) {
         return sendSimpleGroupMsg(event.getGroup(), msg);
     }
+
     /**
      * 发送普通群消息
      *
@@ -41,6 +41,7 @@ public class SendMsgUtil {
         log.info("发送普通群消息[{}]:{}", group.getName(), msg);
         return group.sendBlocking(msg);
     }
+
     /**
      * 发送回复群消息
      *
@@ -55,6 +56,7 @@ public class SendMsgUtil {
         log.info("发送回复群消息[{}] ==> [{}]:{}", group.getName(), author.getNickOrUsername(), msg);
         return event.replyBlocking(msg);
     }
+
     /**
      * 发送图片信息
      *
@@ -77,6 +79,7 @@ public class SendMsgUtil {
         }
         return group.sendBlocking(messagesBuilder.build());
     }
+
     /**
      * 发送合并消息
      *
@@ -91,6 +94,7 @@ public class SendMsgUtil {
         miraiForwardMessageBuilder.add(AuthorId, UserName, build);
         return group.sendBlocking(miraiForwardMessageBuilder.build());
     }
+
     /**
      * 给私聊发消息
      *
@@ -102,6 +106,7 @@ public class SendMsgUtil {
     public static MessageReceipt sendFriendMsg(MiraiFriendMessageEvent event, String msg) {
         return event.getSource().sendBlocking(msg);
     }
+
     /**
      * 私聊合并消息
      *
@@ -116,6 +121,7 @@ public class SendMsgUtil {
         miraiForwardMessageBuilder.add(AuthorId, UserName, messages);
         return event.getSource().sendBlocking(miraiForwardMessageBuilder.build());
     }
+
     /**
      * 转发消息
      *

@@ -21,22 +21,30 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Table structure for loadday
 -- ----------------------------
 DROP TABLE IF EXISTS `loadday`;
-CREATE TABLE `loadday`  (
-  `id` bigint NOT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+CREATE TABLE `loadday`
+(
+    `id` bigint NOT NULL,
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci
+  ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for sumplus
 -- ----------------------------
 DROP TABLE IF EXISTS `sumplus`;
-CREATE TABLE `sumplus`  (
-  `id` bigint NOT NULL,
-  `sum` bigint NOT NULL,
-  `daytime` date NOT NULL,
-  `sumday` bigint NOT NULL,
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `id`(`id` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+CREATE TABLE `sumplus`
+(
+    `id`      bigint NOT NULL,
+    `sum`     bigint NOT NULL,
+    `daytime` date   NOT NULL,
+    `sumday`  bigint NOT NULL,
+    PRIMARY KEY (`id`) USING BTREE,
+    UNIQUE INDEX `id` (`id` ASC) USING BTREE
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci
+  ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;

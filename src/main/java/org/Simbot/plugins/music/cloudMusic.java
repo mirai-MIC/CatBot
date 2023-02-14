@@ -1,7 +1,6 @@
 package org.Simbot.plugins.music;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simboot.annotation.Filter;
 import love.forte.simboot.annotation.FilterValue;
@@ -12,8 +11,10 @@ import love.forte.simbot.event.GroupMessageEvent;
 import net.mamoe.mirai.message.data.MusicKind;
 import org.Simbot.plugins.music.data.musicData;
 import org.Simbot.utils.OK3HttpClient;
+import org.Simbot.utils.Properties.properties;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 
@@ -27,6 +28,14 @@ import java.util.HashMap;
 @Slf4j
 @Component
 public class cloudMusic {
+
+    @lombok.Getter
+    @Deprecated
+    String musicApi = new properties().getProperties("cache/application.properties", "user.musicApi");
+
+    public cloudMusic() throws IOException {
+    }
+
     @Listener
     @Filter(value = "/点歌 {{text}}", matchType = MatchType.REGEX_CONTAINS)
     public void sendMusic(GroupMessageEvent event, @FilterValue("text") String text) {
@@ -35,7 +44,7 @@ public class cloudMusic {
         params.put("num", 1);
         params.put("n", 1);
         try {
-            String musicJson = OK3HttpClient.httpGet("https://www.dreamling.xyz/API/163/music/api.php", params, null);
+            String musicJson = OK3HttpClient.httpGet(getMusicApi(), params, null);
             log.info(musicJson);
             musicData musicData = new Gson().fromJson(musicJson, musicData.class);
             int code = musicData.getCode();
@@ -52,7 +61,7 @@ public class cloudMusic {
                 log.error("code异常.....");
                 event.replyAsync("code异常..： " + code);
             }
-        } catch (JsonSyntaxException e) {
+        } catch (Exception e) {
             log.error(MessageFormat.format("歌曲插件异常,疑似接口出现错误: {0}", e.getMessage()));
             event.replyAsync(MessageFormat.format("歌曲插件异常,疑似接口出现错误: {0}", e.getMessage()));
         }

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -54,7 +55,13 @@ public class openAi {
             log.info("触发");
             String post = HttpClient4Util.getPost("https://api.openai.com/v1/completions", gson.toJson(params));
             openAiData openAiData = gson.fromJson(post, openAiData.class);
-            openAiData.getChoices().forEach(text -> {
+
+            List<org.Simbot.plugins.openai.data.openAiData.ChoicesDTO> choices = openAiData.getChoices();
+            if (choices == null) {
+                getOpenAi(event);
+                return;
+            }
+            choices.forEach(text -> {
                 event.replyAsync(text.getText());
                 log.info(text.getText());
             });

@@ -23,5 +23,4 @@ public class LoadSetting {
         getDb.clearLoad();
         log.info("清空成功");
     }
-
 }

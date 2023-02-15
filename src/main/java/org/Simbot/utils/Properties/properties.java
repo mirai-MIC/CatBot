@@ -13,7 +13,7 @@ import java.util.Properties;
 
 public class properties {
     public String getProperties(String Path, String Key) throws IOException {
-        Properties properties = new Properties();
+        var properties = new Properties();
         properties.load(new FileReader(Path));
         return properties.getProperty(Key);
     }

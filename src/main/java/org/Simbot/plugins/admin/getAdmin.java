@@ -15,6 +15,7 @@ import org.Simbot.db.dbUtils;
 import org.Simbot.plugins.admin.Adminutils.adminUtils;
 import org.Simbot.utils.Msg;
 import org.Simbot.utils.Properties.properties;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -53,7 +54,7 @@ public class getAdmin {
     @ContentTrim
     @Listener
     @Filter(value = "k/ {{accountCode}}", matchType = MatchType.REGEX_MATCHES)
-    public void ban(ChatRoomMessageEvent chatRoomMessageEvent, GroupMessageEvent event, @FilterValue("accountCode") String accountCode) {
+    public void ban(ChatRoomMessageEvent chatRoomMessageEvent, @NotNull GroupMessageEvent event, @FilterValue("accountCode") String accountCode) {
         boolean adminBot = event.getGroup().getBot().toMember().isAdmin();
         boolean adminUser = event.getAuthor().isAdmin();
         if (adminBot && adminUser || event.getAuthor().getId().equals(Msg.Id(getMaster()))) {

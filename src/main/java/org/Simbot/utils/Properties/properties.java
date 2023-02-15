@@ -12,6 +12,15 @@ import java.util.Properties;
  */
 
 public class properties {
+
+    /**
+     * 导入配置文件
+     *
+     * @param Path
+     * @param Key
+     * @return
+     * @throws IOException
+     */
     public String getProperties(String Path, String Key) throws IOException {
         var properties = new Properties();
         properties.load(new FileReader(Path));

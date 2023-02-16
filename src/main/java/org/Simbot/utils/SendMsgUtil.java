@@ -2,6 +2,7 @@ package org.Simbot.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.ID;
+import love.forte.simbot.component.mirai.MiraiFriend;
 import love.forte.simbot.component.mirai.event.MiraiFriendMessageEvent;
 import love.forte.simbot.component.mirai.message.MiraiForwardMessageBuilder;
 import love.forte.simbot.definition.Group;
@@ -11,7 +12,6 @@ import love.forte.simbot.message.MessageReceipt;
 import love.forte.simbot.message.Messages;
 import love.forte.simbot.message.MessagesBuilder;
 import love.forte.simbot.resources.Resource;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.URL;
@@ -63,7 +63,6 @@ public class SendMsgUtil {
      * @param group
      * @param id
      * @param msg
-     * @param image
      * @return
      */
     public static MessageReceipt sendSimpleGroupImage(Group group, ID id, String msg) {
@@ -96,30 +95,16 @@ public class SendMsgUtil {
     }
 
     /**
-     * 给私聊发消息
+     * 发送私聊消息
      *
      * @param event
-     * @param msg
-     * @return
+     * @param id
+     * @param build
      */
-    @NotNull
-    public static MessageReceipt sendFriendMsg(MiraiFriendMessageEvent event, String msg) {
-        return event.getSource().sendBlocking(msg);
-    }
-
-    /**
-     * 私聊合并消息
-     *
-     * @param event
-     * @param messages
-     * @param AuthorId
-     * @param UserName
-     * @return
-     */
-    public static MessageReceipt sendFriendForwardMessage(MiraiFriendMessageEvent event, Messages messages, ID AuthorId, String UserName) {
-        MiraiForwardMessageBuilder miraiForwardMessageBuilder = new MiraiForwardMessageBuilder();
-        miraiForwardMessageBuilder.add(AuthorId, UserName, messages);
-        return event.getSource().sendBlocking(miraiForwardMessageBuilder.build());
+    public static void sendFriendMessage(MiraiFriendMessageEvent event, long id, Messages build) {
+        MiraiFriend friend = event.getFriend().getBot().getFriend(ID.$(id));
+        if (null != friend) friend.sendBlocking(build);
+        else log.error("发送失败....");
     }
 
     /**

@@ -2,8 +2,6 @@ package org.Simbot.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.ID;
-import love.forte.simbot.component.mirai.MiraiFriend;
-import love.forte.simbot.component.mirai.event.MiraiFriendMessageEvent;
 import love.forte.simbot.component.mirai.message.MiraiForwardMessageBuilder;
 import love.forte.simbot.definition.Group;
 import love.forte.simbot.definition.Member;
@@ -12,6 +10,8 @@ import love.forte.simbot.message.MessageReceipt;
 import love.forte.simbot.message.Messages;
 import love.forte.simbot.message.MessagesBuilder;
 import love.forte.simbot.resources.Resource;
+import net.mamoe.mirai.Bot;
+import net.mamoe.mirai.contact.Friend;
 
 import java.io.IOException;
 import java.net.URL;
@@ -94,18 +94,21 @@ public class SendMsgUtil {
         return group.sendBlocking(miraiForwardMessageBuilder.build());
     }
 
+
     /**
      * 发送私聊消息
      *
-     * @param event
      * @param id
      * @param build
      */
-    public static void sendFriendMessage(MiraiFriendMessageEvent event, long id, Messages build) {
-        MiraiFriend friend = event.getFriend().getBot().getFriend(ID.$(id));
-        if (null != friend) friend.sendBlocking(build);
-        else log.error("发送失败....");
+
+    public static Object sendFriendMessage(long id, String build) {
+        Friend friend = null;
+        for (Bot instance : Bot.getInstances()) friend = instance.getFriend(id);
+        if (friend == null) return "";
+        else return friend.sendMessage(build);
     }
+
 
     /**
      * 转发消息

@@ -56,7 +56,7 @@ public class openAi {
             String post = HttpClient4Util.getPost("https://api.openai.com/v1/completions", gson.toJson(params));
             openAiData openAiData = gson.fromJson(post, openAiData.class);
 
-            List<org.Simbot.plugins.openai.data.openAiData.ChoicesDTO> choices = openAiData.getChoices();
+            List<openAiData.ChoicesDTO> choices = openAiData.getChoices();
             if (choices == null) return;
             choices.forEach(text -> {
                 event.replyAsync(text.getText());

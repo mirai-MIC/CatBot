@@ -57,10 +57,7 @@ public class openAi {
             openAiData openAiData = gson.fromJson(post, openAiData.class);
 
             List<org.Simbot.plugins.openai.data.openAiData.ChoicesDTO> choices = openAiData.getChoices();
-            if (choices == null) {
-                getOpenAi(event);
-                return;
-            }
+            if (choices == null) return;
             choices.forEach(text -> {
                 event.replyAsync(text.getText());
                 log.info(text.getText());

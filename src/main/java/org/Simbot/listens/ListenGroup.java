@@ -83,11 +83,9 @@ public class ListenGroup {
             }
             if (message instanceof SimbotOriginalMiraiMessage messageApp) {
                 log.info(messageApp.getOriginalMiraiMessage().contentToString());
-
             }
         }
         Msg.GroupMsg(event);
-//        System.out.println();
     }
 
     /**

@@ -11,13 +11,12 @@ import org.Simbot.plugins.openai.data.openAiData;
 import org.Simbot.utils.HttpClient4Util;
 import org.Simbot.utils.Msg;
 import org.Simbot.utils.Properties.properties;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -40,23 +39,22 @@ public class openAi {
     }
 
     /**
+     * openAi 搜索插件
+     *
      * @param event
      */
     @Listener
     @Filter(value = "/q ", matchType = MatchType.REGEX_CONTAINS)
-    public void getOpenAi(GroupMessageEvent event) {
+    public void getOpenAi(@NotNull GroupMessageEvent event) {
         if (event.getAuthor().getId().equals(Msg.Id(getProperties().trim()))) {
-            Gson gson = new Gson();
-            Map<String, Object> params = new HashMap<>();
+            var gson = new Gson();
+            var params = new HashMap<String, Object>();
             params.put("model", "text-davinci-003");
             params.put("prompt", new Scanner(event.getMessageContent().getPlainText().substring(3)).next());
             params.put("max_tokens", 4000);
-
-            log.info("触发");
             String post = HttpClient4Util.getPost("https://api.openai.com/v1/completions", gson.toJson(params));
             openAiData openAiData = gson.fromJson(post, openAiData.class);
-
-            List<openAiData.ChoicesDTO> choices = openAiData.getChoices();
+            var choices = openAiData.getChoices();
             if (choices == null) return;
             choices.forEach(text -> {
                 event.replyAsync(text.getText());

@@ -13,4 +13,5 @@ public class SimbotApp {
     public static void main(String... args) {
         SpringApplication.run(SimbotApp.class, args);
     }
+
 }

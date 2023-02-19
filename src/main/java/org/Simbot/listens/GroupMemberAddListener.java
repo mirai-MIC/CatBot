@@ -40,4 +40,5 @@ public class GroupMemberAddListener {
         SendMsgUtil.sendSimpleGroupImage(group, after.getId(), "欢迎入群");
     }
 
+
 }

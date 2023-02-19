@@ -34,6 +34,5 @@ public class start implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         log.info("====================启动成功=====================");
         SendMsgUtil.sendFriendMessage(Long.parseLong(getMaster()), "====MusicCatBot启动成功====\n时间: " + new FormatTime().getTime() + "\n功能预览: https://github.com/mirai-MIC/CatBot#readme");
-
     }
 }

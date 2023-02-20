@@ -9,7 +9,8 @@ import love.forte.simbot.component.mirai.message.MiraiForwardMessageBuilder;
 import love.forte.simbot.event.GroupMessageEvent;
 import love.forte.simbot.message.MessagesBuilder;
 import love.forte.simbot.resources.Resource;
-import org.Simbot.db.dbUtils;
+import org.Simbot.mybatisplusutils.domain.loadData;
+import org.Simbot.mybatisplusutils.mapper.LoadMapper;
 import org.Simbot.plugins.load.LoadData.data;
 import org.Simbot.utils.HttpUtils;
 import org.Simbot.utils.Properties.properties;
@@ -31,8 +32,10 @@ public class load {
     @lombok.Getter
     @Deprecated
     String loadUrl = new properties().getProperties("cache/application.properties", "user.load");
+
+
     @Autowired
-    private dbUtils getDb;
+    private LoadMapper mapper;
 
     public load() throws IOException {
     }
@@ -55,7 +58,10 @@ public class load {
                 data loadData = new Gson().fromJson(HttpUtils.get(getLoadUrl()), data.class);
                 data.DataDTO getDTO = loadData.getData();
                 if (loadData.getCode() == 1) {
-                    getDb.setLoadDb(event.getAuthor().getId());
+                    loadData LoadData = new loadData();
+                    LoadData.setId(Long.valueOf(event.getAuthor().getId().toString().trim()));
+                    mapper.insert(LoadData);
+
                     builder.append("Format: " + getDTO.getFormat() + "\n");
                     builder.append("Draw: " + getDTO.getDraw() + "\n");
                     builder.append("Annotate: " + getDTO.getAnnotate() + "\n");

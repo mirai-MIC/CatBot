@@ -12,12 +12,21 @@ import love.forte.simbot.message.MessagesBuilder;
 import love.forte.simbot.resources.Resource;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Friend;
+import org.Simbot.mybatisplusutils.mapper.AliciaMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URL;
 
 @Slf4j
+@Component
 public class SendMsgUtil {
+
+
+    @Autowired
+    private AliciaMapper mapper;
+
     /**
      * 发送普通群消息
      *
@@ -65,14 +74,14 @@ public class SendMsgUtil {
      * @param msg
      * @return
      */
-    public static MessageReceipt sendSimpleGroupImage(Group group, ID id, String msg) {
+    public static MessageReceipt sendSimpleGroupImage(Group group, ID id, String msg, String url) {
         MessagesBuilder messagesBuilder = new MessagesBuilder();
         messagesBuilder.at(id);
         messagesBuilder.text("\n");
         messagesBuilder.text(msg);
         messagesBuilder.text("\n");
         try {
-            messagesBuilder.image(Resource.of(new URL(HttpUtils.sendGet("http://ap1.iw233.cn/api.php?sort=iw233"))));
+            messagesBuilder.image(Resource.of(new URL(url)));
         } catch (IOException e) {
             log.error(e.getMessage());
         }

@@ -6,13 +6,11 @@ import love.forte.simboot.annotation.Filter;
 import love.forte.simboot.annotation.Listener;
 import love.forte.simboot.filter.MatchType;
 import love.forte.simbot.event.GroupMessageEvent;
-import org.Simbot.db.dbUtils;
 import org.Simbot.plugins.openai.data.openAiData;
 import org.Simbot.utils.HttpClient4Util;
 import org.Simbot.utils.Msg;
 import org.Simbot.utils.Properties.properties;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -32,8 +30,6 @@ public class openAi {
     @lombok.Getter
     @Deprecated
     String properties = new properties().getProperties("cache/application.properties", "user.Master");
-    @Autowired
-    private dbUtils getDb;
 
     public openAi() throws IOException {
     }

@@ -11,12 +11,10 @@ import love.forte.simbot.component.mirai.MiraiMember;
 import love.forte.simbot.event.ChatRoomMessageEvent;
 import love.forte.simbot.event.GroupEvent;
 import love.forte.simbot.event.GroupMessageEvent;
-import org.Simbot.db.dbUtils;
 import org.Simbot.plugins.admin.Adminutils.adminUtils;
 import org.Simbot.utils.Msg;
 import org.Simbot.utils.Properties.properties;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
@@ -36,8 +34,6 @@ public class getAdmin {
     @Deprecated
     String master = new properties().getProperties("cache/application.properties", "user.Master");
 
-    @Autowired
-    private dbUtils getDb;
 
     public getAdmin() throws IOException {
     }
@@ -53,7 +49,7 @@ public class getAdmin {
 
     @ContentTrim
     @Listener
-    @Filter(value = "k/ {{accountCode}}", matchType = MatchType.REGEX_MATCHES)
+    @Filter(value = "k/{{accountCode}}", matchType = MatchType.REGEX_MATCHES)
     public void ban(ChatRoomMessageEvent chatRoomMessageEvent, @NotNull GroupMessageEvent event, @FilterValue("accountCode") String accountCode) {
         boolean adminBot = event.getGroup().getBot().toMember().isAdmin();
         boolean adminUser = event.getAuthor().isAdmin();
@@ -116,34 +112,6 @@ public class getAdmin {
             }
         } else {
             event.replyAsync("检查权限");
-        }
-    }
-
-    /**
-     * 将群拉黑
-     *
-     * @param event
-     */
-
-    @Listener
-    @Filter(value = "添加黑名单")
-    public void addBlackList(GroupMessageEvent event) {
-        if (event.getAuthor().getId().equals(Msg.Id(getMaster()))) {
-            getDb.blackList(event.getGroup().getId());
-        }
-    }
-
-    /**
-     * 解除黑名单状态
-     *
-     * @param event
-     */
-    @Listener
-    @Filter(value = "移出黑名单")
-    public void delBlackList(GroupMessageEvent event) {
-        if (event.getAuthor().getId().equals(Msg.Id(getMaster()))) {
-            getDb.delBlackList(event.getGroup().getId());
-
         }
     }
 }

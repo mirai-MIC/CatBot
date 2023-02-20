@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
-    <list size="5">
+    <list size="6">
       <item index="0" class="java.lang.String" itemvalue="lombok.extern.slf4j.Slf4j" />
       <item index="1" class="java.lang.String" itemvalue="love.forte.simboot.annotation.ContentTrim" />
       <item index="2" class="java.lang.String" itemvalue="love.forte.simboot.annotation.Listener" />
-      <item index="3" class="java.lang.String" itemvalue="org.springframework.beans.factory.annotation.Autowired" />
-      <item index="4" class="java.lang.String" itemvalue="org.springframework.beans.factory.annotation.Value" />
+      <item index="3" class="java.lang.String" itemvalue="org.apache.ibatis.annotations.Mapper" />
+      <item index="4" class="java.lang.String" itemvalue="org.springframework.beans.factory.annotation.Autowired" />
+      <item index="5" class="java.lang.String" itemvalue="org.springframework.beans.factory.annotation.Value" />
     </list>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />

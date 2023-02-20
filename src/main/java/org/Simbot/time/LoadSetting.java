@@ -1,7 +1,7 @@
 package org.Simbot.time;
 
 import lombok.extern.slf4j.Slf4j;
-import org.Simbot.db.dbUtils;
+import org.Simbot.mybatisplusutils.mapper.LoadMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
@@ -16,11 +16,11 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class LoadSetting {
     @Autowired
-    private dbUtils getDb;
+    private LoadMapper mapper;
 
     @Scheduled(cron = "0 0 0 * * ? ")
     public void getDelLoad() {
-        getDb.clearLoad();
+        mapper.deleteUser();
         log.info("清空成功");
     }
 }

@@ -12,7 +12,7 @@ import love.forte.simbot.message.MessagesBuilder;
 import love.forte.simbot.resources.Resource;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Friend;
-import org.Simbot.mybatisplusutils.mapper.AliciaMapper;
+import org.Simbot.mybatisplus.mapper.AliciaMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

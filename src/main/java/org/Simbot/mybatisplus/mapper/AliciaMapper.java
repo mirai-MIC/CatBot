@@ -1,7 +1,7 @@
-package org.Simbot.mybatisplusutils.mapper;
+package org.Simbot.mybatisplus.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.Simbot.mybatisplusutils.domain.aliciaAll;
+import org.Simbot.mybatisplus.domain.aliciaAll;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -14,4 +14,6 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface AliciaMapper extends BaseMapper<aliciaAll> {
+
+
 }

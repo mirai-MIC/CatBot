@@ -1,7 +1,7 @@
-package org.Simbot.mybatisplusutils.mapper;
+package org.Simbot.mybatisplus.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.Simbot.mybatisplusutils.domain.signData;
+import org.Simbot.mybatisplus.domain.signData;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

@@ -1,7 +1,7 @@
 package org.Simbot.time;
 
 import lombok.extern.slf4j.Slf4j;
-import org.Simbot.mybatisplusutils.mapper.LoadMapper;
+import org.Simbot.mybatisplus.mapper.LoadMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;

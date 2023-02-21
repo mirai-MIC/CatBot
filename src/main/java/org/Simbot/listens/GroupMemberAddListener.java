@@ -6,7 +6,7 @@ import love.forte.simboot.annotation.Listener;
 import love.forte.simbot.component.mirai.event.MiraiMemberJoinEvent;
 import love.forte.simbot.definition.Group;
 import love.forte.simbot.definition.GroupMember;
-import org.Simbot.mybatisplusutils.mapper.AliciaMapper;
+import org.Simbot.mybatisplus.mapper.AliciaMapper;
 import org.Simbot.utils.SendMsgUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

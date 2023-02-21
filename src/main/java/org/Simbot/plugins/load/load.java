@@ -34,8 +34,10 @@ public class load {
     String loadUrl = new properties().getProperties("cache/application.properties", "user.load");
     @Autowired
     private LoadMapper mapper;
+
     public load() throws IOException {
     }
+
     @Listener
     @ContentTrim
     @Filter(value = "抽签")

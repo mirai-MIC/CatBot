@@ -13,4 +13,9 @@ public class FormatTime {
     public String getTime() {
         return new SimpleDateFormat("yyyy-MM-dd").format(new Date());
     }
+
+    public String getTimeSecond() {
+        return new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date());
+    }
+
 }

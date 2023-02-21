@@ -7,18 +7,13 @@ import love.forte.simbot.ID;
 import love.forte.simbot.component.mirai.message.MiraiForwardMessage;
 import love.forte.simbot.component.mirai.message.SimbotOriginalMiraiMessage;
 import love.forte.simbot.definition.GroupMember;
-import love.forte.simbot.event.GroupJoinRequestEvent;
 import love.forte.simbot.event.GroupMessageEvent;
 import love.forte.simbot.message.*;
 import org.Simbot.listens.data.MessageData;
 import org.Simbot.utils.Msg;
-import org.Simbot.utils.Properties.properties;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.text.MessageFormat;
-import java.util.Objects;
 
 /**
  * @author mirai
@@ -29,16 +24,8 @@ import java.util.Objects;
 @Slf4j
 @Component
 public class ListenGroup {
-    @Deprecated
-    @lombok.Getter
-    String masterId = new properties().getProperties("cache/application.properties", "user.Master");
-
-    public ListenGroup() throws IOException {
-    }
-
-
     @Listener
-    public void getMsg(GroupMessageEvent event) throws MalformedURLException {
+    public void getMsg(GroupMessageEvent event) {
         var groupId = "群: " + event.getGroup().getName() + "(" + event.getGroup().getId() + ")";
         var groupUser = "成员: " + event.getAuthor().getUsername() + "(" + event.getAuthor().getId() + ")";
         var group = event.getGroup();
@@ -88,17 +75,5 @@ public class ListenGroup {
         Msg.GroupMsg(event);
     }
 
-    /**
-     * 仅限Master邀请
-     *
-     * @param groupJoinRequestEvent
-     */
-    @Listener
-    public void acceptGroup(GroupJoinRequestEvent groupJoinRequestEvent) {
-        if (!Objects.requireNonNull(groupJoinRequestEvent.getInviter()).getId().equals(Msg.Id(getMasterId()))) {
-            return;
-        }
-        groupJoinRequestEvent.acceptAsync().join();
-        log.info(groupJoinRequestEvent.getInviter().getUsername());
-    }
+
 }

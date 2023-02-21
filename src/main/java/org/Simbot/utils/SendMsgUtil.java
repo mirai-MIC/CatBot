@@ -13,14 +13,15 @@ import love.forte.simbot.resources.Resource;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Friend;
 import org.Simbot.mybatisplus.mapper.AliciaMapper;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 import java.net.URL;
 
 @Slf4j
-@Component
+@Controller
 public class SendMsgUtil {
 
 
@@ -74,6 +75,7 @@ public class SendMsgUtil {
      * @param msg
      * @return
      */
+    @NotNull
     public static MessageReceipt sendSimpleGroupImage(Group group, ID id, String msg, String url) {
         MessagesBuilder messagesBuilder = new MessagesBuilder();
         messagesBuilder.at(id);

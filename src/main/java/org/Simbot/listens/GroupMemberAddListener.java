@@ -6,10 +6,16 @@ import love.forte.simboot.annotation.Listener;
 import love.forte.simbot.component.mirai.event.MiraiMemberJoinEvent;
 import love.forte.simbot.definition.Group;
 import love.forte.simbot.definition.GroupMember;
+import love.forte.simbot.event.GroupJoinRequestEvent;
 import org.Simbot.mybatisplus.mapper.AliciaMapper;
+import org.Simbot.utils.Msg;
+import org.Simbot.utils.Properties.properties;
 import org.Simbot.utils.SendMsgUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author mirai
@@ -23,8 +29,16 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class GroupMemberAddListener {
 
+    @Deprecated
+    @lombok.Getter
+    String masterId = new properties().getProperties("cache/application.properties", "user.Master");
+
+
     @Autowired
     private AliciaMapper mapper;
+
+    public GroupMemberAddListener() throws IOException {
+    }
 
 
     /**
@@ -46,5 +60,18 @@ public class GroupMemberAddListener {
         SendMsgUtil.sendSimpleGroupImage(group, after.getId(), "欢迎入群", mapper.selectById(randomIndex).getUrl());
     }
 
+    /**
+     * 仅限Master邀请
+     *
+     * @param groupJoinRequestEvent
+     */
+    @Listener
+    public void acceptGroup(GroupJoinRequestEvent groupJoinRequestEvent) {
+        if (!Objects.requireNonNull(groupJoinRequestEvent.getInviter()).getId().equals(Msg.Id(getMasterId()))) {
+            return;
+        }
+        groupJoinRequestEvent.acceptAsync().join();
+        log.info(groupJoinRequestEvent.getInviter().getUsername());
+    }
 
 }

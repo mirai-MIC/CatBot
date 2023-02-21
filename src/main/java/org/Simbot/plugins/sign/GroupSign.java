@@ -36,18 +36,16 @@ public class GroupSign {
     @Listener
     @Filter(value = "注册")
     public void Enroll(GroupMessageEvent event) {
-        try {
-            signData signData = new signData();
-            signData.setId(Long.parseLong(event.getAuthor().getId().toString().trim()));
+        long id = Long.parseLong(event.getAuthor().getId().toString().trim());
+        var signData = new signData();
+        if (signMapper.selectById(id) == null) {
+            signData.setId(id);
             signData.setDaytime(new FormatTime().getTime());
             signData.setSum(50L);
             signData.setSumday(1L);
             signMapper.insert(signData);
             event.replyAsync("注册成功");
-        } catch (Exception e) {
-            log.error("异常信息:" + e.getMessage());
-            event.replyAsync("重复注册...");
-        }
+        } else event.replyAsync("重复注册...");
     }
 
     /**
@@ -61,7 +59,11 @@ public class GroupSign {
     public void getSign(GroupMessageEvent event) {
         try {
             var signData = signMapper.selectById(Long.parseLong(event.getAuthor().getId().toString().trim()));
-            if (signData == null) return;
+            if (signData == null) {
+                log.error("未注册异常");
+                event.replyAsync("请先发送-> 注册 后签到");
+                return;
+            }
             if (!signData.getDaytime().equals(new FormatTime().getTime())) {
                 signData.setDaytime(new FormatTime().getTime());
                 signData.setSum(signData.getSum() + 100L);
@@ -85,7 +87,6 @@ public class GroupSign {
             messagesBuilder.text("\n时间: " + signData.getDaytime());
             messagesBuilder.text("\n坤坤币: " + signData.getSum());
             messagesBuilder.text("\n累计坤日: " + signData.getSumday());
-
             event.getSource().sendBlocking(messagesBuilder.build());
         } catch (Exception e) {
             event.replyAsync("请先注册.....");

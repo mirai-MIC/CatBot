@@ -66,9 +66,7 @@ public class searchImage {
         params.put("numres", 16);
         params.put("api_key", new properties().getProperties("cache/application.properties", "user.searchImage"));
 
-
         var url = "https://saucenao.com/search.php";
-
         var header = new HashMap<String, String>();
         header.put("cookie", "_ga=GA1.1.678918584.1673528436; cf_clearance=yzbMlU38VCL3ShOlAoFs064Y5wChSPRUZmdEt14TlME-1673754810-0-150; token=63c378ba6ab35; user=69680; auth=1f1c47f43b0ae73c920f85075aa23cdbd5efee86; _ga_LK5LRE77R3=GS1.1.1673773844.5.0.1673773844.0.0.0");
         header.put("Content-Type", "application/x-www-form-urlencoded");

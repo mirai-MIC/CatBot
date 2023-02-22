@@ -24,10 +24,10 @@ import org.springframework.stereotype.Component;
 public class yiYan {
     @Filter(value = "/一言", matchType = MatchType.REGEX_MATCHES)
     @Listener
-    public void sendYIYAN(GroupMessageEvent event) {
+    public void sendYan(GroupMessageEvent event) {
         try {
-            String textJson = OK3HttpClient.httpGet("https://ovooa.com/API/yiyan/api.php", null, null);
-            SendMsgUtil.sendSimpleGroupMsg(event.getGroup(), textJson);
+            var textJson = OK3HttpClient.httpGet("https://ovooa.com/API/yiyan/api.php", null, null);
+            SendMsgUtil.sendSimpleGroupMsg(event.getGroup(), "[随机一言]\n" + textJson);
         } catch (Exception e) {
             log.error("一言: " + e.getMessage());
             event.replyAsync(e.getMessage());

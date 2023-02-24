@@ -25,7 +25,7 @@ import static org.Simbot.utils.HttpUtils.get;
 public class getAi {
     @Deprecated
     @lombok.Getter
-    String AiUrl = new properties().getProperties("cache/application.properties", "user.xiaoAi");
+    String AiUrl = new properties().getProperties("cache/application.properties", "api.xiaoAi");
 
     public getAi() throws IOException {
 

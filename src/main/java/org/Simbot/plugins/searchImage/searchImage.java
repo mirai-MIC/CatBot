@@ -64,7 +64,7 @@ public class searchImage {
         params.put("output_type", 2);
         params.put("testmode", 1);
         params.put("numres", 16);
-        params.put("api_key", new properties().getProperties("cache/application.properties", "user.searchImage"));
+        params.put("api_key", new properties().getProperties("cache/application.properties", "api.searchImage"));
 
         var url = "https://saucenao.com/search.php";
         var header = new HashMap<String, String>();

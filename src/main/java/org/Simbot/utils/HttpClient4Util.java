@@ -258,7 +258,7 @@ public final class HttpClient4Util {
             httpClient = HttpClients.createDefault();
             httpPost = new HttpPost(url);
             httpPost.addHeader("Content-Type", "application/json");
-            httpPost.addHeader("Authorization", "Bearer " + new properties().getProperties("cache/application.properties", "user.openai"));
+            httpPost.addHeader("Authorization", "Bearer " + new properties().getProperties("cache/application.properties", "api.openai"));
             httpPost.setEntity(new StringEntity(body, StandardCharsets.UTF_8));
             response = httpClient.execute(httpPost);
             HttpEntity httpEntity = response.getEntity();

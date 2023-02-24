@@ -24,8 +24,6 @@ import java.net.MalformedURLException;
 @Component
 @Slf4j
 public class sendCard {
-
-
     /**
      * 发送卡片消息
      *

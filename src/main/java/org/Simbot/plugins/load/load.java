@@ -31,7 +31,7 @@ import java.net.URL;
 public class load {
     @lombok.Getter
     @Deprecated
-    String loadUrl = new properties().getProperties("cache/application.properties", "user.load");
+    String loadUrl = new properties().getProperties("cache/application.properties", "api.load");
     @Autowired
     private LoadMapper mapper;
 

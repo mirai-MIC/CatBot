@@ -31,7 +31,7 @@ public class cloudMusic {
 
     @lombok.Getter
     @Deprecated
-    String musicApi = new properties().getProperties("cache/application.properties", "user.musicApi");
+    String musicApi = new properties().getProperties("cache/application.properties", "api.musicApi");
 
     public cloudMusic() throws IOException {
     }

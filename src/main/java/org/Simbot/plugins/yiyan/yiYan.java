@@ -33,5 +33,4 @@ public class yiYan {
             event.replyAsync(e.getMessage());
         }
     }
-
 }

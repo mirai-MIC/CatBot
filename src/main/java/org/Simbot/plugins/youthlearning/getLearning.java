@@ -26,7 +26,7 @@ import java.net.URL;
 public class getLearning {
     @lombok.Getter
     @Deprecated
-    String Lear = new properties().getProperties("cache/application.properties", "user.lear");
+    String Lear = new properties().getProperties("cache/application.properties", "api.lear");
 
     public getLearning() throws IOException {
     }

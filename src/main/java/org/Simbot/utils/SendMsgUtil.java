@@ -77,17 +77,22 @@ public class SendMsgUtil {
      */
     @NotNull
     public static MessageReceipt sendSimpleGroupImage(Group group, ID id, String msg, String url) {
-        MessagesBuilder messagesBuilder = new MessagesBuilder();
-        messagesBuilder.at(id);
-        messagesBuilder.text("\n");
-        messagesBuilder.text(msg);
-        messagesBuilder.text("\n");
         try {
-            messagesBuilder.image(Resource.of(new URL(url)));
-        } catch (IOException e) {
-            log.error(e.getMessage());
+            var messagesBuilder = new MessagesBuilder();
+            messagesBuilder.at(id);
+            messagesBuilder.text("\n");
+            messagesBuilder.text(msg);
+            messagesBuilder.text("\n");
+            try {
+                messagesBuilder.image(Resource.of(new URL(url)));
+            } catch (IOException e) {
+                log.error(e.getMessage());
+            }
+            return group.sendBlocking(messagesBuilder.build());
+        } catch (Exception e) {
+            log.error("{发送图片失败}===>  \n" + e.getMessage());
         }
-        return group.sendBlocking(messagesBuilder.build());
+        return null;
     }
 
     /**

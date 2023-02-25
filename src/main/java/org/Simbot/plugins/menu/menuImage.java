@@ -32,6 +32,7 @@ public class menuImage {
 
     @Listener
     @Filter(value = "/菜单", matchType = MatchType.TEXT_EQUALS)
+//    @EnableFeature(value = "${feature.toggle.sendMenu:false}")
     public void sendMenu(GroupMessageEvent event) {
         SendMsgUtil.sendSimpleGroupImage(event.getGroup(), event.getAuthor().getId(), "菜单在这哟~~", getImage());
     }

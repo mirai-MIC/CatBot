@@ -47,16 +47,19 @@ public class load {
         MessagesBuilder builder = new MessagesBuilder();
         builder.at(event.getAuthor().getId());
         builder.text("\n");
+
+        long AuthorId = Long.parseLong(event.getAuthor().getId().toString());
         try {
             if (getLoadUrl().isEmpty()) {
                 log.info("抽签接口为空");
                 event.replyAsync("接口为空");
             } else {
                 data loadData = new Gson().fromJson(HttpUtils.get(getLoadUrl()), data.class);
+
                 data.DataDTO getDTO = loadData.getData();
                 if (loadData.getCode() == 1) {
                     loadData LoadData = new loadData();
-                    LoadData.setId(Long.valueOf(event.getAuthor().getId().toString().trim()));
+                    LoadData.setId(AuthorId);
                     mapper.insert(LoadData);
 
                     builder.append("Format: " + getDTO.getFormat() + "\n");

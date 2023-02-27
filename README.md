@@ -4,8 +4,9 @@
 
 ### 环境要求
 
-- jdk17(可自行降低SpringBoot版本，同时一并降低mybatis-plus版本)
-- mysql环境
+- jdk ->(17)
+- mybatis-plus ->(3.5.3.1)
+- mysql ->(8.0.32)
 ### 功能预览
 
 | 功能                    | 命令                         |

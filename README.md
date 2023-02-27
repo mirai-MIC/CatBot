@@ -5,6 +5,7 @@
 ### 环境要求
 
 - jdk ->(17)
+- SpringBoot 3.0
 - mybatis-plus ->(3.5.3.1)
 - mysql ->(8.0.32)
 ### 功能预览

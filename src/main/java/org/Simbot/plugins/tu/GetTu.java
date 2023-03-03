@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -31,12 +30,16 @@ public class GetTu {
 
     @Filter(value = "/all")
     @Listener
-    public void randomImage(@NotNull GroupMessageEvent event) throws IOException {
+    public void randomImage(@NotNull GroupMessageEvent event) {
         int randomIndex = (int) (Math.random() * mapper.selectCount(Wrappers.emptyWrapper()));
         var messagesBuilder = new MessagesBuilder();
         messagesBuilder.at(event.getAuthor().getId());
         messagesBuilder.append("\nId: " + randomIndex + "\n");
-        messagesBuilder.image(Resource.of(new URL(mapper.selectById(randomIndex).getUrl())));
-        event.getSource().sendBlocking(messagesBuilder.build());
+        try {
+            messagesBuilder.image(Resource.of(new URL(mapper.selectById(randomIndex).getUrl())));
+            event.getSource().sendBlocking(messagesBuilder.build());
+        } catch (Exception e) {
+            event.replyAsync("发送图片接口接口异常\n" + e.getMessage());
+        }
     }
 }

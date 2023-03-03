@@ -12,9 +12,7 @@ import love.forte.simbot.message.MessagesBuilder;
 import love.forte.simbot.resources.Resource;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Friend;
-import org.Simbot.mybatisplus.mapper.AliciaMapper;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
@@ -24,9 +22,6 @@ import java.net.URL;
 @Controller
 public class SendMsgUtil {
 
-
-    @Autowired
-    private AliciaMapper mapper;
 
     /**
      * 发送普通群消息

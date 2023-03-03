@@ -58,6 +58,7 @@ public class searchImage {
         ID id = event.getAuthor().getId();
         ID groupId = event.getGroup().getId();
         event.getSource().sendBlocking("发送图片");
+        TimeUnit seconds = TimeUnit.SECONDS;
 
         var params = new HashMap<String, Object>();
         params.put("db", 999);

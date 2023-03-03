@@ -15,8 +15,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 
-        <simbot.version>3.0.0-M6</simbot.version>
-        <simbot-component-mirai.version>3.0.0.0-M4</simbot-component-mirai.version>
+        <simbot.version>3.0.0-RC.3</simbot.version>
+        <simbot-component-mirai.version>3.0.0.0-M5</simbot-component-mirai.version>
 
     </properties>
 

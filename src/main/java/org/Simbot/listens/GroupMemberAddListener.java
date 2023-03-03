@@ -6,7 +6,7 @@ import love.forte.simboot.annotation.Listener;
 import love.forte.simbot.component.mirai.event.MiraiMemberJoinEvent;
 import love.forte.simbot.definition.Group;
 import love.forte.simbot.definition.GroupMember;
-import love.forte.simbot.event.GroupJoinRequestEvent;
+import love.forte.simbot.event.JoinRequestEvent;
 import org.Simbot.mybatisplus.mapper.AliciaMapper;
 import org.Simbot.utils.Msg;
 import org.Simbot.utils.Properties.properties;
@@ -49,6 +49,8 @@ public class GroupMemberAddListener {
     @Listener
     public void groupAddListener(MiraiMemberJoinEvent event) {
         int randomIndex = (int) (Math.random() * mapper.selectCount(Wrappers.emptyWrapper()));
+
+
         Group group = event.getGroup();
         GroupMember after = event.getAfter();
         String msg = "入群提示：群名[" + group.getName() + "]，群员昵称" + after.getNickname();
@@ -63,15 +65,22 @@ public class GroupMemberAddListener {
     /**
      * 仅限Master邀请
      *
-     * @param groupJoinRequestEvent
+     * @param requestEvent
      */
     @Listener
-    public void acceptGroup(GroupJoinRequestEvent groupJoinRequestEvent) {
-        if (!Objects.requireNonNull(groupJoinRequestEvent.getInviter()).getId().equals(Msg.Id(getMasterId()))) {
+    public void acceptGroup(JoinRequestEvent requestEvent) {
+//        if (!Objects.requireNonNull(groupJoinRequestEvent.getInviter()).getId().equals(Msg.Id(getMasterId()))) {
+//            return;
+//        }
+
+        if (Objects.requireNonNull(requestEvent.getInviter()).getId().equals(Msg.Id(getMasterId()))) {
             return;
         }
-        groupJoinRequestEvent.acceptAsync().join();
-        log.info(groupJoinRequestEvent.getInviter().getUsername());
+
+        requestEvent.acceptAsync().join();
+        log.info(requestEvent.getInviter().getUsername() + "\t\t\t邀请机器人加入群");
+//        groupJoinRequestEvent.acceptAsync().join();
+//        log.info(groupJoinRequestEvent.getInviter().getUsername());
     }
 
 }

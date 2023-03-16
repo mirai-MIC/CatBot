@@ -44,4 +44,6 @@ public class GroupMemberReduceListener {
             SendMsgUtil.sendSimpleGroupMsg(group, MessageFormat.format("就在刚刚,我们的群友『{0}({1})』被某股神秘的力量推出了群聊.", member.getNickOrUsername(), member.getId()));
         }
     }
+
+
 }

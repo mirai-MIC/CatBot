@@ -30,6 +30,7 @@ public class menuImage {
     public menuImage() throws IOException {
     }
 
+
     @Listener
     @Filter(value = "/菜单", matchType = MatchType.TEXT_EQUALS)
 //    @EnableFeature(value = "${feature.toggle.sendMenu:false}")

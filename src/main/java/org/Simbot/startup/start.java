@@ -15,21 +15,18 @@ import java.io.IOException;
  * @BelongsPackage: org.Simbot.startup
  * @Author: MIC
  * @CreateTime: 2023-02-16  15:18
- * @Description:
+ * @Description: Bot启动后自动向主人账号发送消息
  * @Version: 1.0
  */
 
 @Component
 @Slf4j
 public class start implements ApplicationRunner {
-
     @lombok.Getter
     @Deprecated
     String master = new properties().getProperties("cache/application.properties", "user.Master");
-
     public start() throws IOException {
     }
-
     @Override
     public void run(ApplicationArguments args) {
         log.info("====================MusicCatBot启动成功=====================");

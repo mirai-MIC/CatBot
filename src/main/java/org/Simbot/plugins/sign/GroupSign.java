@@ -77,6 +77,12 @@ public class GroupSign {
         }
     }
 
+    /**
+     * 查看积分
+     *
+     * @param event
+     */
+
     @Listener
     @Filter("/积分")
     public void getSignById(GroupMessageEvent event) {

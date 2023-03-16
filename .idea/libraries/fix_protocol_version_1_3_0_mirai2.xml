@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="fix-protocol-version-1.3.0.mirai2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/fix-protocol-version-1.3.0.mirai2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

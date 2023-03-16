@@ -49,12 +49,13 @@ public class GroupMemberAddListener {
     @Listener
     public void groupAddListener(MiraiMemberJoinEvent event) {
         int randomIndex = (int) (Math.random() * mapper.selectCount(Wrappers.emptyWrapper()));
-
-
         Group group = event.getGroup();
         GroupMember after = event.getAfter();
+
+
         String msg = "入群提示：群名[" + group.getName() + "]，群员昵称" + after.getNickname();
         log.info(msg);
+
         if (event.getGroup().getBot().getId().equals(after.getId())) {
             return;
         }

@@ -16,18 +16,18 @@
 
 
         <simbot.version>3.0.0-RC.3</simbot.version>
-        <simbot-component-mirai.version>3.0.0.0-M5</simbot-component-mirai.version>
-
+        <simbot-component-mirai.version>3.0.0.0-RC</simbot-component-mirai.version>
+        <spring-boot-version>3.0.4</spring-boot-version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-            <version>3.0.4</version>
+            <version>${spring-boot-version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/love.forte.simbot.boot/simboot-core-springboot-starter -->
-<!--        simbot-->
+        <!--        simbot-->
         <dependency>
             <groupId>love.forte.simbot.boot</groupId>
             <artifactId>simboot-core-spring-boot-starter</artifactId>
@@ -39,7 +39,7 @@
             <artifactId>simbot-component-mirai-core</artifactId>
             <version>${simbot-component-mirai.version}</version>
         </dependency>
-        <!--导入本地jar-->
+        <!--        导入本地jar-->
         <dependency>
             <groupId>com.aliyun</groupId>
             <artifactId>fix-protocol-version-1.3.0.mirai2</artifactId>
@@ -47,21 +47,20 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/fix-protocol-version-1.3.0.mirai2.jar</systemPath>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>2.0.5</version>
+            <version>2.0.6</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.10</version>
+            <version>2.10.1</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.24</version>
+            <version>1.18.26</version>
             <scope>compile</scope>
         </dependency>
 
@@ -82,7 +81,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.30</version>
+            <version>8.0.32</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -93,12 +92,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
-            <version>3.0.2</version>
+            <version>${spring-boot-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
-            <version>2.7.2</version>
+            <version>${spring-boot-version}</version>
         </dependency>
 
         <dependency>
@@ -106,6 +105,13 @@
             <artifactId>okhttp</artifactId>
             <version>5.0.0-alpha.11</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.asynchttpclient</groupId>
+            <artifactId>async-http-client</artifactId>
+            <version>2.12.3</version>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>

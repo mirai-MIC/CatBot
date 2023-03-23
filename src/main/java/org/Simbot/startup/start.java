@@ -25,8 +25,10 @@ public class start implements ApplicationRunner {
     @lombok.Getter
     @Deprecated
     String master = new properties().getProperties("cache/application.properties", "user.Master");
+
     public start() throws IOException {
     }
+
     @Override
     public void run(ApplicationArguments args) {
         log.info("====================MusicCatBot启动成功=====================");

@@ -5,6 +5,7 @@ import love.forte.simboot.spring.autoconfigure.EnableSimbot;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import xyz.cssxsh.mirai.tool.FixProtocolVersion;
 
@@ -13,6 +14,7 @@ import xyz.cssxsh.mirai.tool.FixProtocolVersion;
 @EnableScheduling
 @SpringBootApplication
 @EnableAspectJAutoProxy
+@EnableAsync
 public class SimbotApp {
     public static void main(String... args) {
         FixProtocolVersion.update();

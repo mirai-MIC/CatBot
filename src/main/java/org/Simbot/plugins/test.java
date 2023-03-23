@@ -4,10 +4,15 @@ import love.forte.simboot.annotation.Filter;
 import love.forte.simboot.annotation.FilterValue;
 import love.forte.simboot.annotation.Listener;
 import love.forte.simboot.filter.MatchType;
+import love.forte.simbot.component.mirai.message.MiraiSendOnlyAudio;
 import love.forte.simbot.event.GroupMessageEvent;
 import love.forte.simbot.message.MessagesBuilder;
+import love.forte.simbot.resources.Resource;
 import org.Simbot.utils.SendMsgUtil;
 import org.springframework.stereotype.Component;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import static org.Simbot.utils.Msg.Id;
 
@@ -29,5 +34,14 @@ public class test {
         MessagesBuilder messagesBuilder = new MessagesBuilder();
         messagesBuilder.text(text);
         SendMsgUtil.ForwardMessages(event, Id(code.trim()), messagesBuilder);
+    }
+
+
+    @Listener
+    @Filter(value = "/test1")
+    public void sendAudio(GroupMessageEvent event) throws MalformedURLException {
+        MiraiSendOnlyAudio miraiSendOnlyAudio = new MiraiSendOnlyAudio(Resource.of(new URL("")));
+        event.getSource().sendBlocking(miraiSendOnlyAudio);
+
     }
 }

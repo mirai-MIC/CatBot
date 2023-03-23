@@ -107,8 +107,7 @@ public class searchImage {
                                         log.error(MessageFormat.format("无缩略图异常: {0}", ec.getMessage()));
                                     }
                                     if (a.getData().getExtUrls() != null) {
-                                        var imageUrl = String.valueOf(a.getData().getExtUrls());
-                                        messagesBuilder.text(MessageFormat.format("图片链接: {0}\n", imageUrl));
+                                        messagesBuilder.text(MessageFormat.format("图片链接: {0}\n", String.valueOf(a.getData().getExtUrls())));
                                     }
                                 }
                             });

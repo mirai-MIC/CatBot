@@ -18,11 +18,15 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.Response;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -30,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Created on 2020-09-29.
@@ -70,6 +75,10 @@ public final class HttpClient4Util {
     public static String getPost(String url, String params) {
         return doPost(url, params);
     }
+
+//    public static String getPostAsync(String url,String body,Consumer<String> callback) throws IOException {
+//        return doPostAsync(url,body,callback);
+//    }
 
 
     /**
@@ -272,5 +281,28 @@ public final class HttpClient4Util {
 
     }
 
+    public static void doPostAsync(String url, String body, Consumer<String> callback) throws IOException {
+        AsyncHttpClient client = new DefaultAsyncHttpClient();
+        try {
+            // 构建 HTTP 请求
+            String authorization = "Bearer " + new properties().getProperties("cache/application.properties", "api.openai");
+            //noinspection deprecation
+            var requestBody = new StringBody(body, StandardCharsets.UTF_8);
+            Response response = client.preparePost(url)
+                    .setHeader("Content-Type", "application/json")
+                    .setHeader("Authorization", authorization)
+                    .setBody(String.valueOf(requestBody))
+                    .execute()
+                    .toCompletableFuture()
+                    .join();
+            // 处理 HTTP 响应
+            String responseBody = response.getResponseBody();
+            callback.accept(responseBody);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        // 关闭异步 HTTP 客户端
+        client.close();
+    }
 
 }

@@ -15,12 +15,10 @@ import org.springframework.stereotype.Component;
 import java.net.URL;
 
 /**
- * @author mirai
- * @version 1.0
- * @packAge: org.Simbot.Plugins.Tu
- * @date 2022/12/10 20:40
- * @description 发送图片
+ * 发送图片
  */
+
+
 @Slf4j
 @Component
 public class GetTu {

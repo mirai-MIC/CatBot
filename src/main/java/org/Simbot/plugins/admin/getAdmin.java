@@ -19,12 +19,7 @@ import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 
-/**
- * @author mirai
- * @version 1.0
- * @packAge: org.Simbot.plugins.admin
- * @date 2022/12/7 13:22
- */
+
 @Controller
 @Slf4j
 public class getAdmin {

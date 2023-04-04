@@ -22,8 +22,6 @@ import java.io.IOException;
 @Component
 @Slf4j
 public class morningNews {
-
-
     @lombok.Getter
     @Deprecated
     String newsImage = new properties().getProperties("cache/application.properties", "api.news");

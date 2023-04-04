@@ -15,7 +15,6 @@ import org.Simbot.utils.Properties.properties;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.HashMap;
 
 /**
@@ -43,27 +42,26 @@ public class cloudMusic {
         params.put("msg", text.trim());
         params.put("num", 1);
         params.put("n", 1);
-        try {
-            String musicJson = OK3HttpClient.httpGet(getMusicApi(), params, null);
-            log.info(musicJson);
-            musicData musicData = new Gson().fromJson(musicJson, musicData.class);
-            int code = musicData.getCode();
-            if (code == 200) {
-                var data = musicData.getData();
-                String getPicture = data.getCover();
-                String getMusic = data.getMusic();
-                String getNickUser = data.getSinger();
-                String getMusicUrl = data.getMusicUrl();
-                String getUrl = data.getUrl();
-                var miraiMusicShare = new MiraiMusicShare(MusicKind.NeteaseCloudMusic, getMusic, getNickUser, getMusicUrl, getPicture, getUrl);
-                event.getSource().sendBlocking(miraiMusicShare);
-            } else {
-                log.error("code异常.....");
-                event.replyAsync("code异常..： " + code);
-            }
-        } catch (Exception e) {
-            log.error(MessageFormat.format("歌曲插件异常,疑似接口出现错误: {0}", e.getMessage()));
-            event.replyAsync(MessageFormat.format("歌曲插件异常,疑似接口出现错误: {0}", e.getMessage()));
-        }
+        OK3HttpClient.httpGetAsync(getMusicApi(), params, null,
+                result -> {
+                    log.info(result);
+                    musicData musicData = new Gson().fromJson(result, musicData.class);
+                    if (musicData.getCode() != 200) {
+                    } else {
+                        var data = musicData.getData();
+                        String getPicture = data.getCover();
+                        String getMusic = data.getMusic();
+                        String getNickUser = data.getSinger();
+                        String getMusicUrl = data.getMusicUrl();
+                        String getUrl = data.getUrl();
+                        var miraiMusicShare = new MiraiMusicShare(MusicKind.NeteaseCloudMusic, getMusic, getNickUser, getMusicUrl, getPicture, getUrl);
+                        event.getSource().sendAsync(miraiMusicShare);
+                    }
+                },
+                error -> {
+                    log.error("出现异常: \n" + error);
+                    event.replyAsync("出现异常: \n" + error.getMessage());
+                }
+        );
     }
 }

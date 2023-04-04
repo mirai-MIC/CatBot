@@ -1,13 +1,14 @@
 package org.Simbot.utils;
 
-import okhttp3.Headers;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * @author mirai
@@ -41,13 +42,36 @@ public class OK3HttpClient {
         var call = okHttpClient.newCall(request);
         try {
             var response = call.execute();
-            if (response.body() == null) throw new AssertionError();
             result = response.body().string();
         } catch (Exception e) {
             log.error("调用三方接口出错", e);
         }
         return result;
     }
+
+    public static void httpGetAsync(String url, Map<String, Object> params, Map<String, String> headMap, Consumer<String> onSuccess, Consumer<Exception> onError) {
+        url += getParams(params);
+        var setHeaders = SetHeaders(headMap);
+        var okHttpClient = new OkHttpClient();
+        Request.Builder builder = new Request.Builder();
+        builder.url(url);
+        builder.headers(setHeaders);
+        var request = builder.build();
+        var call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String result = response.body().string();
+                onSuccess.accept(result);
+            }
+
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                onError.accept(e);
+            }
+        });
+    }
+
 
     /**
      * 请求参数

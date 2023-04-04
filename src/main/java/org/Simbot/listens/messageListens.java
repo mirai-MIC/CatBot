@@ -23,13 +23,12 @@ import java.text.MessageFormat;
  */
 @Slf4j
 @Component
-public class ListenGroup {
+public class messageListens {
     @Listener
     public void getMsg(GroupMessageEvent event) {
         var groupId = "群: " + event.getGroup().getName() + "(" + event.getGroup().getId() + ")";
         var groupUser = "成员: " + event.getAuthor().getUsername() + "(" + event.getAuthor().getId() + ")";
         var group = event.getGroup();
-
         MessagesBuilder messagesBuilder = new MessagesBuilder();
         log.info(MessageFormat.format("{0}\t\t{1}", groupId, groupUser));
         for (Message.Element<?> message : event.getMessageContent().getMessages()) {
@@ -42,11 +41,8 @@ public class ListenGroup {
                 });
             }
             if (message instanceof Face face) {
-//                ID id = face.getId();
-//                log.info(MessageFormat.format("[Face表情: {0} ]", ((Face) message).getId()));
                 log.info(MessageFormat.format("[Face表情: {0} ]", face.getId()));
             }
-
             if (message instanceof At at) {
                 ID targetId = at.getTarget();
                 GroupMember targetMember = group.getMember(targetId);
@@ -56,10 +52,8 @@ public class ListenGroup {
                     log.info(MessageFormat.format("[AT消息: @{0}( {1} )", targetMember.getNickOrUsername(), targetMember.getId()));
                 }
             }
-
             if (message instanceof SimbotOriginalMiraiMessage simbotOriginalMiraiMessage) {
                 try {
-//                    String simpleApp = ((SimbotOriginalMiraiMessage) message).getOriginalMiraiMessage().contentToString();
                     String simpleApp = simbotOriginalMiraiMessage.getOriginalMiraiMessage().contentToString();
                     MessageData messageData = new Gson().fromJson(simpleApp, MessageData.class);
                     MessageData.MetaDTO.Detail1DTO detail1 = messageData.getMeta().getDetail1();
@@ -80,6 +74,4 @@ public class ListenGroup {
         }
         Msg.GroupMsg(event);
     }
-
-
 }

@@ -226,7 +226,7 @@ public final class HttpClient4Util {
         log.debug("执行Http get请求,地址: {} ", url);
 
         String response = null;
-        HttpClient httpClient = null;
+        HttpClient httpClient;
         try {
             httpClient = HttpClientBuilder.create().build();
             HttpGet httpGet = new HttpGet(url);

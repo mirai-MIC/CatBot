@@ -47,6 +47,7 @@ public class cloudMusic {
                     log.info(result);
                     musicData musicData = new Gson().fromJson(result, musicData.class);
                     if (musicData.getCode() != 200) {
+                        return;
                     } else {
                         var data = musicData.getData();
                         String getPicture = data.getCover();
@@ -56,6 +57,7 @@ public class cloudMusic {
                         String getUrl = data.getUrl();
                         var miraiMusicShare = new MiraiMusicShare(MusicKind.NeteaseCloudMusic, getMusic, getNickUser, getMusicUrl, getPicture, getUrl);
                         event.getSource().sendAsync(miraiMusicShare);
+                        event.replyAsync(getUrl);
                     }
                 },
                 error -> {

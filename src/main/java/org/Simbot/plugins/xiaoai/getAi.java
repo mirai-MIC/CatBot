@@ -47,7 +47,7 @@ public class getAi {
                 builder.at(event.getAuthor().getId());
                 builder.append("\t\t" + data.getResponseText());
             } catch (Exception e) {
-                log.info("Q管家异常");
+                log.error("Q管家异常");
             }
         }
         event.getSource().sendBlocking(builder.build());

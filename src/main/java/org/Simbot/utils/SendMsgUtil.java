@@ -30,6 +30,7 @@ public class SendMsgUtil {
      * @param msg
      * @return
      */
+    @NotNull
     public static MessageReceipt sendSimpleGroupMsg(GroupMessageEvent event, String msg) {
         return sendSimpleGroupMsg(event.getGroup(), msg);
     }
@@ -52,14 +53,13 @@ public class SendMsgUtil {
      *
      * @param event
      * @param msg
-     * @return
      */
-    public static MessageReceipt sendReplyGroupMsg(GroupMessageEvent event, String msg) {
+    public static void sendReplyGroupMsg(GroupMessageEvent event, String msg) {
         msg = msg.trim();
         Group group = event.getGroup();
         Member author = event.getAuthor();
         log.info("发送回复群消息[{}] ==> [{}]:{}", group.getName(), author.getNickOrUsername(), msg);
-        return event.replyBlocking(msg);
+        event.replyBlocking(msg);
     }
 
     /**
@@ -68,10 +68,8 @@ public class SendMsgUtil {
      * @param group
      * @param id
      * @param msg
-     * @return
      */
-    @NotNull
-    public static MessageReceipt sendSimpleGroupImage(Group group, ID id, String msg, String url) {
+    public static void sendSimpleGroupImage(Group group, ID id, String msg, String url) {
         try {
             var messagesBuilder = new MessagesBuilder();
             messagesBuilder.at(id);
@@ -83,11 +81,10 @@ public class SendMsgUtil {
             } catch (IOException e) {
                 log.error(e.getMessage());
             }
-            return group.sendBlocking(messagesBuilder.build());
+            group.sendBlocking(messagesBuilder.build());
         } catch (Exception e) {
             log.error("{发送图片失败}===>  \n" + e.getMessage());
         }
-        return null;
     }
 
     /**
@@ -105,21 +102,19 @@ public class SendMsgUtil {
         return group.sendBlocking(miraiForwardMessageBuilder.build());
     }
 
-
     /**
      * 发送私聊消息
      *
      * @param id
      * @param build
      */
-
-    public static Object sendFriendMessage(long id, String build) {
+    public static void sendFriendMessage(long id, String build) {
         Friend friend = null;
         for (Bot instance : Bot.getInstances()) friend = instance.getFriend(id);
-        if (friend == null) return "";
-        else return friend.sendMessage(build);
+        if (friend != null) {
+            friend.sendMessage(build);
+        }
     }
-
 
     /**
      * 转发消息
@@ -127,11 +122,10 @@ public class SendMsgUtil {
      * @param event
      * @param groupId
      * @param builder
-     * @return
      */
-    public static MessageReceipt ForwardMessages(GroupMessageEvent event, ID groupId, MessagesBuilder builder) {
+    public static void ForwardMessages(GroupMessageEvent event, ID groupId, MessagesBuilder builder) {
         Group group = event.getBot().getGroup(groupId);
         assert group != null;
-        return group.sendBlocking(builder.build());
+        group.sendBlocking(builder.build());
     }
 }

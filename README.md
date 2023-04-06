@@ -61,7 +61,7 @@ fork或者clone此项目到你的本地，并使用IDE工具打开并构建它�
     "text": "密码"
   },
   "config": {
-    "protocol": "IPAD",
+    "protocol": "MACOS",
     "deviceInfo": {
       "type": "file_based"
     }

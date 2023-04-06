@@ -51,8 +51,7 @@ public class GroupMemberAddListener {
         int randomIndex = (int) (Math.random() * mapper.selectCount(Wrappers.emptyWrapper()));
         Group group = event.getGroup();
         GroupMember after = event.getAfter();
-
-
+        log.info(String.valueOf(after.getJoinTime().getMillisecond()));
         String msg = "入群提示：群名[" + group.getName() + "]，群员昵称" + after.getNickname();
         log.info(msg);
 

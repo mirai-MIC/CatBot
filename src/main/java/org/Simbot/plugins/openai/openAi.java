@@ -45,7 +45,7 @@ public class openAi {
         HttpClient4Util.doPostAsync("https://api.openai.com/v1/completions", body, responseContent -> {
             openAiData openAiData = gson.fromJson(responseContent, openAiData.class);
             var choices = openAiData.getChoices();
-            if (choices == null) {
+            if (choices.isEmpty()) {
                 event.replyAsync("接口出现异常");
                 return;
             }

@@ -42,28 +42,25 @@ public class cloudMusic {
         params.put("msg", text.trim());
         params.put("num", 1);
         params.put("n", 1);
-        OK3HttpClient.httpGetAsync(getMusicApi(), params, null,
-                result -> {
-                    log.info(result);
-                    musicData musicData = new Gson().fromJson(result, musicData.class);
-                    if (musicData.getCode() != 200) {
-                        return;
-                    } else {
-                        var data = musicData.getData();
-                        String getPicture = data.getCover();
-                        String getMusic = data.getMusic();
-                        String getNickUser = data.getSinger();
-                        String getMusicUrl = data.getMusicUrl();
-                        String getUrl = data.getUrl();
-                        var miraiMusicShare = new MiraiMusicShare(MusicKind.NeteaseCloudMusic, getMusic, getNickUser, getMusicUrl, getPicture, getUrl);
-                        event.getSource().sendAsync(miraiMusicShare);
-                        event.replyAsync(getUrl);
-                    }
-                },
-                error -> {
-                    log.error("出现异常: \n" + error);
-                    event.replyAsync("出现异常: \n" + error.getMessage());
-                }
-        );
+        OK3HttpClient.httpGetAsync(getMusicApi(), params, null, result -> {
+            log.info(result);
+            musicData musicData = new Gson().fromJson(result, musicData.class);
+            if (musicData.getCode() != 200) {
+                return;
+            } else {
+                var data = musicData.getData();
+                String getPicture = data.getCover();
+                String getMusic = data.getMusic();
+                String getNickUser = data.getSinger();
+                String getMusicUrl = data.getMusicUrl();
+                String getUrl = data.getUrl();
+                var miraiMusicShare = new MiraiMusicShare(MusicKind.NeteaseCloudMusic, getMusic, getNickUser, getMusicUrl, getPicture, getUrl);
+                event.getSource().sendAsync(miraiMusicShare);
+                event.replyAsync(getUrl);
+            }
+        }, error -> {
+            log.error("出现异常: \n" + error);
+            event.replyAsync("出现异常: \n" + error.getMessage());
+        });
     }
 }

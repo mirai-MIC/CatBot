@@ -78,7 +78,7 @@ public class OK3HttpClient {
      *
      * @return params
      */
-    public static String getParams(Map<String, Object> params) {
+    private static String getParams(Map<String, Object> params) {
         var sb = new StringBuilder("?");
         if (params != null) {
             params.forEach((key, value) -> {
@@ -99,7 +99,7 @@ public class OK3HttpClient {
      * @param headersParams
      * @return
      */
-    public static Headers SetHeaders(Map<String, String> headersParams) {
+    private static Headers SetHeaders(Map<String, String> headersParams) {
         var headersbuilder = new Headers.Builder();
         if (headersParams != null) {
             Iterator<String> iterator = headersParams.keySet().iterator();

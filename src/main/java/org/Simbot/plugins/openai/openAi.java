@@ -54,6 +54,7 @@ public class openAi {
                 log.info(text.getText());
             });
         });
+
         log.info("继续执行");
     }
 }

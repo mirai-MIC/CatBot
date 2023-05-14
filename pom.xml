@@ -110,6 +110,12 @@
             <artifactId>async-http-client</artifactId>
             <version>2.12.3</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <version>3.0.6</version>
+        </dependency>
 
     </dependencies>
     <build>
@@ -117,7 +123,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.7.7</version>
+                <version>3.0.6</version>
                 <configuration>
                     <!-- main方法所在类。 -->
                     <mainClass>org.Simbot.SimbotApp</mainClass>

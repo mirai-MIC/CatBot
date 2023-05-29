@@ -1,8 +1,8 @@
 package org.Simbot.time;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.Simbot.mybatisplus.mapper.LoadMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Controller;
 @Slf4j
 @Controller
 public class LoadSetting {
-    @Autowired
+    @Resource
     private LoadMapper mapper;
 
     @Scheduled(cron = "0 0 0 * * ? ")

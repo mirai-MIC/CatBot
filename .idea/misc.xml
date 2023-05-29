@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
-    <list size="7">
-      <item index="0" class="java.lang.String" itemvalue="jakarta.annotation.Resource" />
-      <item index="1" class="java.lang.String" itemvalue="lombok.extern.slf4j.Slf4j" />
-      <item index="2" class="java.lang.String" itemvalue="love.forte.simboot.annotation.ContentTrim" />
-      <item index="3" class="java.lang.String" itemvalue="love.forte.simboot.annotation.Listener" />
-      <item index="4" class="java.lang.String" itemvalue="org.apache.ibatis.annotations.Mapper" />
-      <item index="5" class="java.lang.String" itemvalue="org.springframework.beans.factory.annotation.Autowired" />
-      <item index="6" class="java.lang.String" itemvalue="org.springframework.beans.factory.annotation.Value" />
+    <list size="1">
+      <item index="0" class="java.lang.String" itemvalue="love.forte.simboot.annotation.Filter" />
     </list>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
@@ -19,7 +13,5 @@
       </list>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="17" project-jdk-type="JavaSDK">
-    <output url="file://$PROJECT_DIR$/out" />
-  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="17" project-jdk-type="JavaSDK" />
 </project>

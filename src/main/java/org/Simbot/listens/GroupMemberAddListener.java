@@ -1,6 +1,7 @@
 package org.Simbot.listens;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simboot.annotation.Listener;
 import love.forte.simbot.component.mirai.event.MiraiMemberJoinEvent;
@@ -11,7 +12,6 @@ import org.Simbot.mybatisplus.mapper.AliciaMapper;
 import org.Simbot.utils.Msg;
 import org.Simbot.utils.Properties.properties;
 import org.Simbot.utils.SendMsgUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class GroupMemberAddListener {
     String masterId = new properties().getProperties("cache/application.properties", "user.Master");
 
 
-    @Autowired
+    @Resource
     private AliciaMapper mapper;
 
     public GroupMemberAddListener() throws IOException {

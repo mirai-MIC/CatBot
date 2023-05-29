@@ -1,6 +1,7 @@
 package org.Simbot.plugins.music;
 
 import com.google.gson.Gson;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simboot.annotation.Filter;
 import love.forte.simboot.annotation.FilterValue;
@@ -28,7 +29,7 @@ import java.util.HashMap;
 @Component
 public class cloudMusic {
 
-    @lombok.Getter
+    @Getter
     @Deprecated
     String musicApi = new properties().getProperties("cache/application.properties", "api.musicApi");
 
@@ -45,9 +46,7 @@ public class cloudMusic {
         OK3HttpClient.httpGetAsync(getMusicApi(), params, null, result -> {
             log.info(result);
             musicData musicData = new Gson().fromJson(result, musicData.class);
-            if (musicData.getCode() != 200) {
-                return;
-            } else {
+            if (musicData.getCode() == 200) {
                 var data = musicData.getData();
                 String getPicture = data.getCover();
                 String getMusic = data.getMusic();

@@ -9,7 +9,6 @@ import love.forte.simbot.message.MessagesBuilder;
 import love.forte.simbot.resources.Resource;
 import org.Simbot.mybatisplus.mapper.AliciaMapper;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
@@ -22,9 +21,8 @@ import java.net.URL;
 @Slf4j
 @Component
 public class GetTu {
-    @Autowired
+    @javax.annotation.Resource
     private AliciaMapper mapper;
-
 
     @Filter(value = "/all")
     @Listener

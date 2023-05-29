@@ -1,5 +1,6 @@
 package org.Simbot.plugins.sign;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simboot.annotation.ContentTrim;
 import love.forte.simboot.annotation.Filter;
@@ -9,7 +10,6 @@ import love.forte.simbot.message.MessagesBuilder;
 import org.Simbot.mybatisplus.domain.signData;
 import org.Simbot.mybatisplus.mapper.SignMapper;
 import org.Simbot.utils.FormatTime;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 public class GroupSign {
 
 
-    @Autowired
+    @Resource
     private SignMapper signMapper;
 
 

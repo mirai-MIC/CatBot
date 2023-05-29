@@ -19,5 +19,6 @@ public class SimbotApp {
     public static void main(String... args) {
         FixProtocolVersion.update();
         SpringApplication.run(SimbotApp.class, args);
+
     }
 }

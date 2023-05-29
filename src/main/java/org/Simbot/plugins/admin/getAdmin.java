@@ -1,5 +1,6 @@
 package org.Simbot.plugins.admin;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simboot.annotation.ContentTrim;
 import love.forte.simboot.annotation.Filter;
@@ -25,7 +26,7 @@ import java.io.IOException;
 public class getAdmin {
 
 
-    @lombok.Getter
+    @Getter
     @Deprecated
     String master = new properties().getProperties("cache/application.properties", "user.Master");
 

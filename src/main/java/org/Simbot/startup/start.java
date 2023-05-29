@@ -1,5 +1,6 @@
 package org.Simbot.startup;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.Simbot.utils.FormatTime;
 import org.Simbot.utils.Properties.properties;
@@ -22,11 +23,12 @@ import java.io.IOException;
 @Component
 @Slf4j
 public class start implements ApplicationRunner {
-    @lombok.Getter
+    @Getter
     @Deprecated
     String master = new properties().getProperties("cache/application.properties", "user.Master");
 
     public start() throws IOException {
+
     }
 
     @Override

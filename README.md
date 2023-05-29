@@ -12,6 +12,54 @@
 | mysql        | 8.0.3.2 |
 | Maven        | 3.8.7   |
 
+
+### 项目结构
+
+```yml
+├─cache
+├─lib
+└─src
+└─main
+├─java
+│  └─org
+│      └─Simbot
+│          ├─listens
+│          │  └─data
+│          ├─mybatisplus
+│          │  ├─domain
+│          │  └─mapper
+│          ├─plugins
+│          │  ├─admin
+│          │  │  └─Adminutils
+│          │  ├─card
+│          │  ├─menu
+│          │  ├─music
+│          │  │  └─data
+│          │  ├─news
+│          │  ├─openai
+│          │  │  └─data
+│          │  ├─searchImage
+│          │  ├─searchvideo
+│          │  │  └─data
+│          │  ├─sign
+│          │  ├─tu
+│          │  │  └─Data
+│          │  ├─video
+│          │  │  └─data
+│          │  ├─xiaoai
+│          │  │  └─Xutils
+│          │  ├─yiyan
+│          │  └─youthlearning
+│          │      └─Data
+│          ├─startup
+│          ├─time
+│          └─utils
+│              └─Properties
+└─resources
+└─simbot-bots
+
+```
+
 ### 功能预览
 
 | 功能                    | 命令                         |

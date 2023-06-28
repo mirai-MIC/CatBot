@@ -62,6 +62,7 @@ public class SendMsgUtil {
         event.replyBlocking(msg);
     }
 
+
     /**
      * 发送图片信息
      *

@@ -1,14 +1,14 @@
 {
   "component": "simbot.mirai",
-  "code": code,
+  "code": 257207868,
   "passwordInfo": {
-    "type": "text",
-    "text": "text"
+    "type": "qr_code"
   },
   "config": {
-    "protocol": "IPAD",
+    "protocol": "ANDROID_WATCH",
     "deviceInfo": {
       "type": "file_based"
     }
   }
 }
+

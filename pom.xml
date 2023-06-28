@@ -15,8 +15,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 
-        <simbot.version>3.0.0-RC.3</simbot.version>
-        <simbot-component-mirai.version>3.0.0.0-RC</simbot-component-mirai.version>
+        <simbot.version>3.1.0</simbot.version>
+        <simbot-component-mirai.version>3.0.0.0-M7</simbot-component-mirai.version>
         <springboot-version>3.0.5</springboot-version>
     </properties>
 
@@ -43,9 +43,9 @@
         <dependency>
             <groupId>com.aliyun</groupId>
             <artifactId>fix</artifactId>
-            <version>1.3.0</version>
+            <version>1.8.4</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/fix-protocol-version-1.5.0.mirai2.jar</systemPath>
+            <systemPath>${project.basedir}/lib/fix-protocol-version-1.8.4.mirai2.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

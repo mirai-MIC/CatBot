@@ -1,13 +1,16 @@
 package org.Simbot.utils;
 
+import cn.hutool.core.collection.CollUtil;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -18,56 +21,65 @@ import java.util.function.Consumer;
  * @description 发起http请求
  */
 
+@Slf4j
 public class OK3HttpClient {
-    private static final Logger log = LoggerFactory.getLogger(OK3HttpClient.class);
+
+    private static final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS) //设置连接超时
+            .writeTimeout(10, TimeUnit.SECONDS) //设置写超时
+            .readTimeout(30, TimeUnit.SECONDS) //设置读超时
+            .retryOnConnectionFailure(true) //设置是否在连接失败后重试
+            .connectionPool(new ConnectionPool(5, 5, TimeUnit.MINUTES)) //设置连接池
+            .cache(new Cache(new File("HttpCache"), 1024 * 1024 * 10)) //设置缓存10M
+            .build();
 
     /**
      * 发起get请求
      *
-     * @param url
-     * @param params
-     * @param headMap
+     * @param url     请求地址
+     * @param params  请求参数
+     * @param headMap 请求头
      * @return json数据
      */
-    public static String httpGet(String url, Map<String, Object> params, Map<String, String> headMap) {
-        // 设置HTTP请求参数
+    public static String httpGet(String url, final Map<String, Object> params, final Map<String, String> headMap) {
         String result = null;
         url += getParams(params);
-        var setHeaders = SetHeaders(headMap);
-        var okHttpClient = new OkHttpClient();
-        Request.Builder builder = new Request.Builder();
+        final var setHeaders = setHeaders(headMap);
+        final Request.Builder builder = new Request.Builder();
         builder.url(url);
         builder.headers(setHeaders);
-        var request = builder.build();
-        var call = okHttpClient.newCall(request);
-        try {
-            var response = call.execute();
+        final var request = builder.build();
+        final var call = okHttpClient.newCall(request);
+        try (Response response = call.execute()) {
             result = response.body().string();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             log.error("调用三方接口出错", e);
         }
         return result;
     }
 
-    public static void httpGetAsync(String url, Map<String, Object> params, Map<String, String> headMap, Consumer<String> onSuccess, Consumer<Exception> onError) {
+    public static void httpGetAsync(String url, final Map<String, Object> params, final Map<String, String> headMap, final Consumer<String> onSuccess, final Consumer<Exception> onError) {
         url += getParams(params);
-        var setHeaders = SetHeaders(headMap);
-        var okHttpClient = new OkHttpClient();
-        Request.Builder builder = new Request.Builder();
+        final var setHeaders = setHeaders(headMap);
+        final Request.Builder builder = new Request.Builder();
         builder.url(url);
         builder.headers(setHeaders);
-        var request = builder.build();
-        var call = okHttpClient.newCall(request);
+        final var request = builder.build();
+        final var call = okHttpClient.newCall(request);
         call.enqueue(new Callback() {
             @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                String result = response.body().string();
-                onSuccess.accept(result);
+            public void onResponse(@NotNull final Call call, @NotNull final Response response) throws IOException {
+                final String result = response.body().string();
+                if (onSuccess != null) {
+                    onSuccess.accept(result);
+                }
             }
 
             @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                onError.accept(e);
+            public void onFailure(@NotNull final Call call, @NotNull final IOException e) {
+                if (onError != null) {
+                    onError.accept(e);
+                }
             }
         });
     }
@@ -78,36 +90,38 @@ public class OK3HttpClient {
      *
      * @return params
      */
-    private static String getParams(Map<String, Object> params) {
-        var sb = new StringBuilder("?");
-        if (params != null) {
-            params.forEach((key, value) -> {
-                if (value != null) {
+    private static String getParams(final Map<String, Object> params) {
+        if (CollUtil.isEmpty(params)) {
+            return "";
+        }
+        final var sb = new StringBuilder("?");
+        params.forEach((key, value) -> {
+            if (value != null) {
+                if (sb.length() > 1) {
                     sb.append("&");
+                }
+                try {
                     sb.append(key);
                     sb.append("=");
-                    sb.append(value);
+                    sb.append(URLEncoder.encode(value.toString(), StandardCharsets.UTF_8));
+                } catch (final Exception e) {
+                    log.error("error when encoding url", e);
                 }
-            });
-            return sb.toString();
-        } else return "";
+            }
+        });
+        return sb.toString();
     }
 
     /**
      * 请求头
      *
-     * @param headersParams
-     * @return
+     * @param headersParams 请求头参数
+     * @return 请求头
      */
-    private static Headers SetHeaders(Map<String, String> headersParams) {
-        var headersbuilder = new Headers.Builder();
+    private static Headers setHeaders(final Map<String, String> headersParams) {
+        final var headersbuilder = new Headers.Builder();
         if (headersParams != null) {
-            Iterator<String> iterator = headersParams.keySet().iterator();
-            String key;
-            while (iterator.hasNext()) {
-                key = iterator.next();
-                headersbuilder.add(key, headersParams.get(key));
-            }
+            headersParams.forEach(headersbuilder::add);
         }
         return headersbuilder.build();
     }

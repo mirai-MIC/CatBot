@@ -11,38 +11,38 @@ import love.forte.simbot.message.Messages;
 import love.forte.simbot.message.MessagesBuilder;
 import love.forte.simbot.resources.Resource;
 import net.mamoe.mirai.Bot;
-import net.mamoe.mirai.contact.Friend;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Objects;
 
 @Slf4j
-@Controller
+@Component
 public class SendMsgUtil {
 
 
     /**
      * 发送普通群消息
      *
-     * @param event
-     * @param msg
-     * @return
+     * @param event 消息事件
+     * @param msg   消息内容
+     * @return 消息回执
      */
     @NotNull
-    public static MessageReceipt sendSimpleGroupMsg(GroupMessageEvent event, String msg) {
+    public static MessageReceipt sendSimpleGroupMsg(final GroupMessageEvent event, final String msg) {
         return sendSimpleGroupMsg(event.getGroup(), msg);
     }
 
     /**
      * 发送普通群消息
      *
-     * @param group
-     * @param msg
-     * @return
+     * @param group 群
+     * @param msg   消息内容
+     * @return 消息回执
      */
-    public static MessageReceipt sendSimpleGroupMsg(Group group, String msg) {
+    public static MessageReceipt sendSimpleGroupMsg(final Group group, String msg) {
         msg = msg.trim();
         log.info("发送普通群消息[{}]:{}", group.getName(), msg);
         return group.sendBlocking(msg);
@@ -51,13 +51,13 @@ public class SendMsgUtil {
     /**
      * 发送回复群消息
      *
-     * @param event
-     * @param msg
+     * @param event 消息事件
+     * @param msg   消息内容
      */
-    public static void sendReplyGroupMsg(GroupMessageEvent event, String msg) {
+    public static void sendReplyGroupMsg(final GroupMessageEvent event, String msg) {
         msg = msg.trim();
-        Group group = event.getGroup();
-        Member author = event.getAuthor();
+        final Group group = event.getGroup();
+        final Member author = event.getAuthor();
         log.info("发送回复群消息[{}] ==> [{}]:{}", group.getName(), author.getNickOrUsername(), msg);
         event.replyBlocking(msg);
     }
@@ -66,24 +66,24 @@ public class SendMsgUtil {
     /**
      * 发送图片信息
      *
-     * @param group
-     * @param id
-     * @param msg
+     * @param group 群
+     * @param id    发送人
+     * @param msg   消息内容
      */
-    public static void sendSimpleGroupImage(Group group, ID id, String msg, String url) {
+    public static void sendSimpleGroupImage(final Group group, final ID id, final String msg, final String url) {
         try {
-            var messagesBuilder = new MessagesBuilder();
+            final var messagesBuilder = new MessagesBuilder();
             messagesBuilder.at(id);
             messagesBuilder.text("\n");
             messagesBuilder.text(msg);
             messagesBuilder.text("\n");
             try {
                 messagesBuilder.image(Resource.of(new URL(url)));
-            } catch (IOException e) {
-                log.error(e.getMessage());
+            } catch (final IOException e) {
+                log.error("处理图片URL出错:", e);
             }
             group.sendBlocking(messagesBuilder.build());
-        } catch (Exception e) {
+        } catch (final Exception e) {
             log.error("{发送图片失败}===>  \n" + e.getMessage());
         }
     }
@@ -91,14 +91,14 @@ public class SendMsgUtil {
     /**
      * 发送合并消息
      *
-     * @param group
-     * @param AuthorId
-     * @param UserName
-     * @param build
-     * @return
+     * @param group    群
+     * @param AuthorId 发送人
+     * @param UserName 发送人昵称
+     * @param build    消息内容
+     * @return 消息回执
      */
-    public static MessageReceipt sendForwardMessageBuilder(Group group, ID AuthorId, String UserName, Messages build) {
-        MiraiForwardMessageBuilder miraiForwardMessageBuilder = new MiraiForwardMessageBuilder();
+    public static MessageReceipt sendForwardMessageBuilder(final Group group, final ID AuthorId, final String UserName, final Messages build) {
+        final MiraiForwardMessageBuilder miraiForwardMessageBuilder = new MiraiForwardMessageBuilder();
         miraiForwardMessageBuilder.add(AuthorId, UserName, build);
         return group.sendBlocking(miraiForwardMessageBuilder.build());
     }
@@ -106,27 +106,30 @@ public class SendMsgUtil {
     /**
      * 发送私聊消息
      *
-     * @param id
-     * @param build
+     * @param id    发送人
+     * @param build 消息内容
      */
-    public static void sendFriendMessage(long id, String build) {
-        Friend friend = null;
-        for (Bot instance : Bot.getInstances()) friend = instance.getFriend(id);
-        if (friend != null) {
-            friend.sendMessage(build);
-        }
+    public static void sendFriendMessage(final long id, final String build) {
+        Bot.getInstances().stream()
+                .map(bot -> bot.getFriend(id))
+                .filter(Objects::nonNull)
+                .findFirst().ifPresent(friend -> friend.sendMessage(build));
     }
 
     /**
      * 转发消息
      *
-     * @param event
-     * @param groupId
-     * @param builder
+     * @param event   消息事件
+     * @param groupId 转发群
+     * @param builder 消息内容
      */
-    public static void ForwardMessages(GroupMessageEvent event, ID groupId, MessagesBuilder builder) {
-        Group group = event.getBot().getGroup(groupId);
-        assert group != null;
-        group.sendBlocking(builder.build());
+    public static void ForwardMessages(final GroupMessageEvent event, final ID groupId, final MessagesBuilder builder) {
+        final Group group = event.getBot().getGroup(groupId);
+        if (group == null) {
+            // 输出日志或者抛出自定义的异常
+            log.error("群号[{}]不存在", groupId);
+        } else {
+            group.sendBlocking(builder.build());
+        }
     }
 }

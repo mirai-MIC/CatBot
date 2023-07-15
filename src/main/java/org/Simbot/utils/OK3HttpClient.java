@@ -1,6 +1,7 @@
 package org.Simbot.utils;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
@@ -79,6 +80,46 @@ public class OK3HttpClient {
             public void onFailure(@NotNull final Call call, @NotNull final IOException e) {
                 if (onError != null) {
                     onError.accept(e);
+                }
+            }
+        });
+    }
+
+    public static void httpPostAsync(final String url, final Map<String, Object> params, final Map<String, String> headMap, final Consumer<String> onSuccess, final Consumer<Exception> onError, final int retryTimes) {
+
+        httpCallWrapper(url, params, headMap, onSuccess, onError, retryTimes);
+    }
+
+    private static void httpCallWrapper(final String url, final Map<String, Object> params, final Map<String, String> headMap, final Consumer<String> onSuccess, final Consumer<Exception> onError, final int retryTimes) {
+        final var setHeaders = setHeaders(headMap);
+        final Request.Builder builder = new Request.Builder();
+        builder.url(url);
+        builder.headers(setHeaders);
+
+        final String jsonStr = JSONUtil.toJsonStr(params);
+        final MediaType JSON = MediaType.get("application/json; charset=utf-8");
+        final RequestBody body = RequestBody.Companion.create(jsonStr, JSON);
+        builder.post(body);
+
+        final var request = builder.build();
+        final var call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onResponse(@NotNull final Call call, @NotNull final Response response) throws IOException {
+                final String result = response.body().string();
+                if (onSuccess != null) {
+                    onSuccess.accept(result);
+                }
+            }
+
+            @Override
+            public void onFailure(@NotNull final Call call, @NotNull final IOException e) {
+                if (onError != null) {
+                    onError.accept(e);
+                }
+
+                if (retryTimes > 0) {
+                    httpCallWrapper(url, params, headMap, onSuccess, onError, retryTimes - 1);
                 }
             }
         });

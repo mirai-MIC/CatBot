@@ -95,7 +95,7 @@ public class openAI {
             conversation = new UserConversation()
                     .setId(qqId)
                     .setConversationId(IdUtil.fastSimpleUUID())
-                    .setModelType("GPT3")
+                    .setModelType("GPT4")//todo 自定义模型与自定义prompt待实现
                     .setMessages(new ArrayList<>())
             ;
             USER_CONVERSATION_MAP.put(qqId, conversation);

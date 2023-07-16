@@ -114,12 +114,11 @@ public class OK3HttpClient {
 
             @Override
             public void onFailure(@NotNull final Call call, @NotNull final IOException e) {
-                if (onError != null) {
-                    onError.accept(e);
-                }
-
                 if (retryTimes > 0) {
+                    log.info("retryTimes:{}", retryTimes);
                     httpCallWrapper(url, params, headMap, onSuccess, onError, retryTimes - 1);
+                } else if (onError != null) {
+                    onError.accept(e);
                 }
             }
         });

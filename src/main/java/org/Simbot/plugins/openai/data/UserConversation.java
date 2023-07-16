@@ -15,7 +15,7 @@ public class UserConversation {
     private String conversationId;
     //系统prompt
     private String prompt = """
-               你是 ChatGPT，一个由 OpenAI 训练的大型语言模型，请仔细遵循用户的指示。请仔细的一步步思考，保证回答的合理性，准确性。
+               你是一个人工智能的大型语言模型，请仔细遵循用户的指示。请仔细的一步步思考，保证回答的合理性，准确性。
             """;
     //用户输入
     private List<MessageEntity> messages;

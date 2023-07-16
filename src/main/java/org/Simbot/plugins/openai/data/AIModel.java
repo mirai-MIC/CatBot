@@ -8,7 +8,6 @@ public class AIModel {
     private String name;
     private int maxLength;
     private int tokenLimit;
-    private String prompt;
 
     public AIModel(final String type) {
         switch (type) {

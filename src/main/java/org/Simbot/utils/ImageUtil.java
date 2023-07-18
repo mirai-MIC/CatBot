@@ -9,8 +9,9 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.text.AttributedString;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,21 +56,22 @@ public class ImageUtil {
     /**
      * 把一段文本生成图片
      *
-     * @param text      文本
-     * @param imageName 图片名
-     * @param maxWidth  最大宽度
+     * @param text     文本
+     * @param maxWidth 最大宽度
+     * @return 图片
      */
     @SneakyThrows
-    public static void createImage(final String text, final String imageName, final int maxWidth) {
-        outputPath = outputPath + imageName + ".png";
+    public static ByteArrayInputStream createImage(final String text, final int maxWidth) {
+//        outputPath = outputPath + imageName + ".png";
         final float fontSize = 26;//字体大小
         final Font font = loadFont(fontPath, fontSize);
         final FontMetrics fontMetrics = CANVAS.getFontMetrics(font);
-
         //计算文本的宽度
         final List<String> lines = splitText(text, font, maxWidth * 2);
         final int width = maxWidth * 2 + 40;//左右各20像素的边距
         final int height = (fontMetrics.getHeight() + 20) * lines.size() + 20;//上下各10像素的边距
+        // 创建一个ByteArrayOutputStream,用于存放字节数据,指定大小为width*height*4,每个像素大约占用4个字节（RGBA）
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(width * height * 4);
         //创建图片,RGB比ARGB效率高
         final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         final Graphics2D graphics = image.createGraphics();
@@ -86,20 +88,24 @@ public class ImageUtil {
         }
         //释放资源
         graphics.dispose();
-
-        try (FileOutputStream outputStream = new FileOutputStream(outputPath)) {
-            ImageIO.write(image, "png", outputStream);
-        }
+        //保存图片
+//        try (FileOutputStream outputStream = new FileOutputStream(outputPath)) {
+//            ImageIO.write(image, "png", outputStream);
+//        }
+        // 将BufferedImage写入ByteArrayOutputStream
+        ImageIO.write(image, "png", byteArrayOutputStream);
+        // 使用字节数组创建ByteArrayInputStream
+        return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
     }
 
     /**
      * 把一段文本生成图片
      *
-     * @param text      文本
-     * @param imageName 图片名
+     * @param text 文本
+     * @return 图片
      */
-    public static void createImage(final String text, final String imageName) {
-        createImage(text, imageName, 500);
+    public static ByteArrayInputStream createImage(final String text) {
+        return createImage(text, 500);
     }
 
 

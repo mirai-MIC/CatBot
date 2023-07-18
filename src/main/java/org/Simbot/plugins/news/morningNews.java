@@ -4,11 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import love.forte.simboot.annotation.Filter;
 import love.forte.simboot.annotation.Listener;
 import love.forte.simbot.event.GroupMessageEvent;
-import org.Simbot.utils.Properties.properties;
 import org.Simbot.utils.SendMsgUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 /**
  * @BelongsProject: simbot
@@ -22,18 +20,15 @@ import java.io.IOException;
 @Component
 @Slf4j
 public class morningNews {
-    @lombok.Getter
-    @Deprecated
-    String newsImage = new properties().getProperties("cache/application.properties", "api.news");
 
-    public morningNews() throws IOException {
-    }
+    @Value("${api.news}")
+    String newsImage;
 
     @Listener
     @Filter(value = "/每日早报")
     @Filter(value = "/早报")
-    public void getNews(GroupMessageEvent event) {
-        SendMsgUtil.sendSimpleGroupImage(event.getGroup(), event.getAuthor().getId(), "每日早报~", getNewsImage());
+    public void getNews(final GroupMessageEvent event) {
+        SendMsgUtil.sendSimpleGroupImage(event.getGroup(), event.getAuthor().getId(), "每日早报~", newsImage);
     }
 
 }

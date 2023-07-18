@@ -1,5 +1,6 @@
 package org.Simbot.utils;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.ID;
 import love.forte.simbot.component.mirai.message.MiraiForwardMessageBuilder;
@@ -14,6 +15,7 @@ import net.mamoe.mirai.Bot;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
@@ -62,6 +64,17 @@ public class SendMsgUtil {
         event.replyBlocking(msg);
     }
 
+    @SneakyThrows
+    public static void sendReplyGroupImg(final GroupMessageEvent event, String msg) {
+        msg = msg.trim();
+        final Group group = event.getGroup();
+        final Member author = event.getAuthor();
+        log.info("发送回复群图片消息[{}] ==> [{}]:{}", group.getName(), author.getNickOrUsername(), msg);
+        final var messagesBuilder = new MessagesBuilder();
+        final ByteArrayInputStream image = ImageUtil.createImage(msg);
+        messagesBuilder.image(Resource.of(image));
+        event.replyBlocking(messagesBuilder.build());
+    }
 
     /**
      * 发送图片信息

@@ -19,6 +19,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -65,7 +67,7 @@ public class SendMsgUtil {
     }
 
     @SneakyThrows
-    public static void sendReplyGroupImg(final GroupMessageEvent event, String msg) {
+    public static MessageReceipt sendReplyGroupImg(final GroupMessageEvent event, String msg) {
         msg = msg.trim();
         final Group group = event.getGroup();
         final Member author = event.getAuthor();
@@ -73,7 +75,7 @@ public class SendMsgUtil {
         final var messagesBuilder = new MessagesBuilder();
         final ByteArrayInputStream image = ImageUtil.createImage(msg);
         messagesBuilder.image(Resource.of(image));
-        event.replyBlocking(messagesBuilder.build());
+        return event.replyBlocking(messagesBuilder.build());
     }
 
     /**
@@ -144,5 +146,26 @@ public class SendMsgUtil {
         } else {
             group.sendBlocking(builder.build());
         }
+    }
+
+    /**
+     * 撤回消息
+     *
+     * @param messageReceipt 消息回执
+     * @param time           撤回时间
+     */
+    public static void withdrawMessage(final MessageReceipt messageReceipt, final Integer time) {
+        if (!messageReceipt.isSuccess()) {
+            return;
+        }
+        CompletableFuture.runAsync(() -> {
+            try {
+                TimeUnit.SECONDS.sleep(time);
+                final boolean blocking = messageReceipt.deleteBlocking();
+                log.info(blocking ? "撤回成功" : "撤回失败");
+            } catch (final InterruptedException e) {
+                log.error("撤回消息失败", e);
+            }
+        });
     }
 }

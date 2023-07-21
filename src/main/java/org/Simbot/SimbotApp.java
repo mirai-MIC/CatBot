@@ -2,6 +2,7 @@ package org.Simbot;
 
 
 import love.forte.simboot.spring.autoconfigure.EnableSimbot;
+import net.mamoe.mirai.utils.BotConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -16,8 +17,10 @@ import xyz.cssxsh.mirai.tool.FixProtocolVersion;
 @EnableAspectJAutoProxy
 @EnableAsync
 public class SimbotApp {
-    public static void main(String... args) {
-        FixProtocolVersion.update();
+    public static void main(final String... args) {
+//        FixProtocolVersion.update();
+        //自建协议服务器
+        FixProtocolVersion.fetch(BotConfiguration.MiraiProtocol.ANDROID_PAD, "8.9.58");
         SpringApplication.run(SimbotApp.class, args);
 
     }

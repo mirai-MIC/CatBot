@@ -45,7 +45,7 @@
             <artifactId>fix</artifactId>
             <version>1.8.4</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/fix-protocol-version-1.9.5.mirai2.jar</systemPath>
+            <systemPath>${project.basedir}/lib/fix-protocol-version-1.9.9.mirai2.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

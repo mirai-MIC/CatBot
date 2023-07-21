@@ -71,7 +71,8 @@ public class openAI {
                 modelConstructor,
                 headMap,
                 result -> {
-                    SendMsgUtil.sendReplyGroupImg(event, result);
+                    final MessageReceipt receipt = SendMsgUtil.sendReplyGroupImg(event, result);
+                    SendMsgUtil.withdrawMessage(receipt, 55);
                     messages.add(new MessageEntity(result, "assistant"));
                     log.info("openAI result: {}", result);
                 },

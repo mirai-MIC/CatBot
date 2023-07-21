@@ -24,7 +24,7 @@ public class ImageUtil {
     //自定义字体路径
     private static final String fontPath = "cache/custom.ttf";
     //文生图图片输出路径
-    private static String outputPath = "cache/tempImg/";
+    private static final String outputPath = "cache/tempImg/";
 
     private static final Canvas CANVAS = new Canvas();
 
@@ -42,12 +42,18 @@ public class ImageUtil {
         final LineBreakMeasurer lineBreakMeasurer = new LineBreakMeasurer(attributedText.getIterator(), new FontRenderContext(null, true, true));
 
         final List<String> lines = new ArrayList<>();
-        final StringBuilder sb = new StringBuilder();
         while (lineBreakMeasurer.getPosition() < text.length()) {
-            final int endIndex = lineBreakMeasurer.nextOffset(maxWidth);
-            sb.setLength(0);
-            sb.append(text, lineBreakMeasurer.getPosition(), endIndex);
-            lines.add(sb.toString());
+            int endIndex = lineBreakMeasurer.nextOffset(maxWidth);
+            String line = text.substring(lineBreakMeasurer.getPosition(), endIndex);
+
+            // 处理换行符
+            final int newLineIndex = line.indexOf("\n");
+            if (newLineIndex != -1) {
+                endIndex = lineBreakMeasurer.getPosition() + newLineIndex + 1;
+                line = line.substring(0, newLineIndex);
+            }
+
+            lines.add(line);
             lineBreakMeasurer.setPosition(endIndex);
         }
         return lines;

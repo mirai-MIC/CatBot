@@ -44,7 +44,7 @@ public class openAI {
      * @param event 群消息事件
      */
     @Listener
-    @Filter(value = "/q ", matchType = MatchType.REGEX_CONTAINS)
+    @Filter(value = "/q ", matchType = MatchType.TEXT_STARTS_WITH)
     public void getOpenAI(@NotNull final GroupMessageEvent event) {
         final Map<String, String> headMap = new HashMap<>();
         headMap.put("Cookie", cookie);
@@ -85,7 +85,7 @@ public class openAI {
     }
 
     @Listener
-    @Filter(value = "/prompt ", matchType = MatchType.REGEX_CONTAINS)
+    @Filter(value = "/prompt ", matchType = MatchType.TEXT_STARTS_WITH)
     public void setPrompt(@NotNull final GroupMessageEvent event) {
         //获取发送人的 QQ号
         final String qq = event.getAuthor().getId().toString();
@@ -105,7 +105,7 @@ public class openAI {
     }
 
     @Listener
-    @Filter(value = "/model ", matchType = MatchType.REGEX_CONTAINS)
+    @Filter(value = "/model ", matchType = MatchType.TEXT_STARTS_WITH)
     public void setModel(@NotNull final GroupMessageEvent event) {
         //获取发送人的 QQ号
         final String qq = event.getAuthor().getId().toString();
@@ -134,7 +134,7 @@ public class openAI {
         }
         messages.clear();
         userConversation.setModelType(next);
-        SendMsgUtil.sendReplyGroupMsg(event, "已设置model,自动清空会话");
+        SendMsgUtil.sendReplyGroupMsg(event, "已设置model为 " + next + " ,自动清空会话");
     }
 
 

@@ -12,6 +12,7 @@ import love.forte.simbot.message.Messages;
 import love.forte.simbot.message.MessagesBuilder;
 import love.forte.simbot.resources.Resource;
 import net.mamoe.mirai.Bot;
+import net.mamoe.mirai.utils.ExternalResource;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
@@ -132,13 +133,34 @@ public class SendMsgUtil {
     }
 
     /**
+     * 发送私聊图片
+     *
+     * @param id    发送人
+     * @param build 消息内容
+     */
+    @SneakyThrows
+    public static void sendFriendImage(final long id, final String build) {
+        final var image = ImageUtil.createImage(build);
+        try (var resource = ExternalResource.create(image)) {
+            Bot.getInstances().stream()
+                    .map(bot -> bot.getFriend(id))
+                    .filter(Objects::nonNull)
+                    .findFirst().ifPresent(friend -> {
+                        friend.uploadImage(resource);
+                        log.info("发送私聊图片[{}]:{}", friend.getNick(), build);
+                    });
+        }
+    }
+
+    /**
      * 转发消息
      *
      * @param event   消息事件
      * @param groupId 转发群
      * @param builder 消息内容
      */
-    public static void ForwardMessages(final GroupMessageEvent event, final ID groupId, final MessagesBuilder builder) {
+    public static void ForwardMessages(final GroupMessageEvent event, final ID groupId,
+                                       final MessagesBuilder builder) {
         final Group group = event.getBot().getGroup(groupId);
         if (group == null) {
             // 输出日志或者抛出自定义的异常

@@ -14,6 +14,7 @@ import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -190,8 +191,14 @@ public class OK3HttpClient {
                 if (image == null) {
                     throw new IOException("Invalid image format");
                 }
-                // 修改整个图像的像素颜色
-                image.setRGB(0, 0, Color.RED.getRGB());
+                // 获取图像的宽度和高度
+                final int width = image.getWidth();
+                final int height = image.getHeight();
+                // 随机生成一个像素点的位置
+                final ThreadLocalRandom random = ThreadLocalRandom.current();
+                final int x = random.nextInt(width);
+                final int y = random.nextInt(height);
+                image.setRGB(x, y, Color.RED.getRGB());
 
                 // 写回 ByteArrayOutputStream
                 try (ByteArrayOutputStream modifiedOut = new ByteArrayOutputStream()) {

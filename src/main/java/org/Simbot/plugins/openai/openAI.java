@@ -78,7 +78,8 @@ public class openAI {
                     final MessageReceipt receipt = SendMsgUtil.sendReplyGroupImg(event, result);
 //                    SendMsgUtil.withdrawMessage(receipt, 55);
                     messages.add(new MessageEntity(result, "assistant"));
-                    log.info("openAI result: {}", result);
+//                    log.info("openAI result: {}", result);
+                    log.info("userConversation: {}", userConversation);
                 },
                 error -> log.error("openAI error: {}", error.getMessage()),
                 10);
@@ -99,8 +100,7 @@ public class openAI {
             return;
         }
         messages.clear();
-        userConversation.setPrompt(next);
-        userConversation.setConversationId(IdUtil.fastSimpleUUID());
+        userConversation.setPrompt(next).setConversationId(IdUtil.fastSimpleUUID());
         SendMsgUtil.sendReplyGroupMsg(event, "已设置prompt,自动清空会话");
     }
 
@@ -133,7 +133,7 @@ public class openAI {
             );
         }
         messages.clear();
-        userConversation.setModelType(next);
+        userConversation.setModelType(next).setConversationId(IdUtil.fastSimpleUUID());
         SendMsgUtil.sendReplyGroupMsg(event, "已设置model为 " + next + " ,自动清空会话");
     }
 

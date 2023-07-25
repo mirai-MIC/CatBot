@@ -1,5 +1,6 @@
 package org.Simbot.plugins.avSearch;
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,9 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -76,7 +79,10 @@ public class AVListener {
         ;
 
         //并行流下载
-        previewImages.parallelStream()
+        Optional.ofNullable(previewImages)
+                .orElse(Collections.emptyList())
+                .parallelStream()
+                .filter(StringUtils::isNotBlank)
                 .map(OK3HttpClient::downloadImage)
                 .forEach(inputStream -> {
                     try {
@@ -91,6 +97,6 @@ public class AVListener {
         //发送消息
         final var sendAsync = event.getSource().sendAsync(chain.build());
         //撤回消息
-        SendMsgUtil.withdrawMessage(sendAsync.get(15, TimeUnit.SECONDS), 55);
+//        SendMsgUtil.withdrawMessage(sendAsync.get(30, TimeUnit.SECONDS), 55);
     }
 }

@@ -165,4 +165,39 @@ public class OK3HttpClient {
         }
         return headersbuilder.build();
     }
+
+    /**
+     * 下载图片
+     *
+     * @param imgUrl 图片链接
+     * @return 图片流
+     */
+    @SneakyThrows
+    public static ByteArrayInputStream downloadImage(final String imgUrl) {
+        final Request request = new Request.Builder().url(imgUrl).build();
+
+        try (Response response = okHttpClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new IOException("Unexpected code " + response);
+            }
+
+            try (InputStream in = response.body().byteStream()) {
+                // 直接从 InputStream 到 BufferedImage
+                final BufferedImage image = ImageIO.read(in);
+                if (image == null) {
+                    throw new IOException("Invalid image format");
+                }
+                // 修改整个图像的像素颜色
+                image.setRGB(0, 0, Color.RED.getRGB());
+
+                // 写回 ByteArrayOutputStream
+                try (ByteArrayOutputStream modifiedOut = new ByteArrayOutputStream()) {
+                    ImageIO.write(image, "png", modifiedOut);
+                    return new ByteArrayInputStream(modifiedOut.toByteArray());
+                }
+            }
+        }
+    }
+
+
 }

@@ -58,13 +58,14 @@ public class SendMsgUtil {
      *
      * @param event 消息事件
      * @param msg   消息内容
+     * @return 消息回执
      */
-    public static void sendReplyGroupMsg(final GroupMessageEvent event, String msg) {
+    public static MessageReceipt sendReplyGroupMsg(final GroupMessageEvent event, String msg) {
         msg = msg.trim();
         final Group group = event.getGroup();
         final Member author = event.getAuthor();
         log.info("发送回复群消息[{}] ==> [{}]:{}", group.getName(), author.getNickOrUsername(), msg);
-        event.replyBlocking(msg);
+        return event.replyBlocking(msg);
     }
 
     @SneakyThrows

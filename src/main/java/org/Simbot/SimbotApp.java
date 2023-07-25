@@ -21,6 +21,7 @@ public class SimbotApp {
 //        FixProtocolVersion.update();
         //自建协议服务器
         FixProtocolVersion.fetch(BotConfiguration.MiraiProtocol.ANDROID_PAD, "8.9.58");
+        System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2,SSLv3");
         SpringApplication.run(SimbotApp.class, args);
 
     }

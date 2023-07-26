@@ -1,6 +1,6 @@
 package org.Simbot.plugins.avSearch;
 
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -36,6 +34,8 @@ import java.util.concurrent.TimeUnit;
 public class AVListener {
 
     private final AVDetailsScraper avDetailsScraper;
+
+    private final NetflavDetailsScraper netflavDetailsScraper;
 
     @Listener
     @Filter(value = "/av ", matchType = MatchType.TEXT_STARTS_WITH)
@@ -59,6 +59,8 @@ public class AVListener {
         }
         //下载封面
         final var arrayInputStream = CompletableFuture.supplyAsync(() -> OK3HttpClient.downloadImage(avDetail.getCoverImage()));
+        final var videoPlayUrl = CompletableFuture.supplyAsync(() -> netflavDetailsScraper.getVideoUrl(avDetail.getAvNumber()));
+        final var netflavMagnetLink = CompletableFuture.supplyAsync(() -> netflavDetailsScraper.getMagnetLink(avDetail.getAvNumber()));
         final var builder = new MessagesBuilder();
         //构建消息链
         final var chain = new MiraiForwardMessageBuilder(ForwardMessage.DisplayStrategy.Default);
@@ -70,7 +72,8 @@ public class AVListener {
                 .append("演员 : ").append(avDetail.getActors()).append("\n")
                 .append("发行日期 : ").append(avDetail.getReleaseDate()).append("\n")
                 .append("类别 : ").append(avDetail.getCategories().stream().reduce((a, b) -> a + " " + b).orElse("没有找到相关信息")).append("\n")
-                .append("磁力链接 : " + "\n").append(avDetail.getMagnetLink().stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息")).append("\n")
+//                .append("磁力链接 : " + "\n").append(avDetail.getMagnetLink().stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息")).append("\n")
+//                .append("在线播放地址 : ").append(videoPlayUrl.get(15, TimeUnit.SECONDS).stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息")).append("\n")
                 .append("封面 : " + "\n");
 
         builder.text(stringBuilder.toString())
@@ -82,7 +85,7 @@ public class AVListener {
         Optional.ofNullable(previewImages)
                 .orElse(Collections.emptyList())
                 .parallelStream()
-                .filter(StringUtils::isNotBlank)
+                .filter(StrUtil::isNotBlank)
                 .map(OK3HttpClient::downloadImage)
                 .forEach(inputStream -> {
                     try {
@@ -94,6 +97,13 @@ public class AVListener {
                 });
 
         chain.add(event.getBot(), builder.build());
+        chain.add(event.getBot(), "在线播放地址 : " + videoPlayUrl.get(15, TimeUnit.SECONDS).stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息"));
+        final Map<String, Set<String>> map = netflavMagnetLink.get(15, TimeUnit.SECONDS);
+        final var magnetMessageBuilder = new MessagesBuilder().text("磁力链接 : " + "\n[HD]\n]")
+                .text(map.get("HD").stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息")).text("\n")
+                .text("\n[HD][中文字幕]\n")
+                .text(map.get("HD[SUB]").stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息")).text("\n");
+        chain.add(event.getBot(), magnetMessageBuilder.build());
         //发送消息
         final var sendAsync = event.getSource().sendAsync(chain.build());
         //撤回消息

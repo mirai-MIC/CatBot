@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 @Slf4j
 public class OK3HttpClient {
 
-    private static final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+    public static final OkHttpClient okHttpClient = new OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS) //设置连接超时
             .writeTimeout(10, TimeUnit.SECONDS) //设置写超时
             .readTimeout(30, TimeUnit.SECONDS) //设置读超时

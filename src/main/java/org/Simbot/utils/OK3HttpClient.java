@@ -34,7 +34,7 @@ public class OK3HttpClient {
             .writeTimeout(10, TimeUnit.SECONDS) //设置写超时
             .readTimeout(30, TimeUnit.SECONDS) //设置读超时
             .retryOnConnectionFailure(true) //设置是否在连接失败后重试
-            .connectionPool(new ConnectionPool(5, 5, TimeUnit.MINUTES)) //设置连接池
+            .connectionPool(new ConnectionPool(32, 5, TimeUnit.MINUTES)) //设置连接池
             .cache(new Cache(new File("HttpCache"), 1024 * 1024 * 10)) //设置缓存10M
             .build();
 

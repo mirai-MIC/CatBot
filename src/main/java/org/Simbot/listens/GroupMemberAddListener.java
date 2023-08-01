@@ -2,6 +2,7 @@ package org.Simbot.listens;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import jakarta.annotation.Resource;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simboot.annotation.Listener;
 import love.forte.simbot.component.mirai.event.MiraiMemberJoinEvent;
@@ -25,12 +26,12 @@ import java.util.Objects;
  */
 
 
+@Getter
 @Component
 @Slf4j
 public class GroupMemberAddListener {
 
     @Deprecated
-    @lombok.Getter
     String masterId = new properties().getProperties("cache/application.properties", "user.Master");
 
 
@@ -69,16 +70,18 @@ public class GroupMemberAddListener {
      */
     @Listener
     public void acceptGroup(JoinRequestEvent requestEvent) {
-//        if (!Objects.requireNonNull(groupJoinRequestEvent.getInviter()).getId().equals(Msg.Id(getMasterId()))) {
+//        System.out.println(requestEvent.getInviter());
+        if (!Objects.requireNonNull(requestEvent.getInviter()).getId().equals(Msg.Id(getMasterId()))) {
+            return;
+        }
+//        System.out.println(requestEvent);
+
+//        if (Objects.requireNonNull(requestEvent.getInviter()).getId().equals(Msg.Id(getMasterId()))) {
 //            return;
 //        }
 
-        if (Objects.requireNonNull(requestEvent.getInviter()).getId().equals(Msg.Id(getMasterId()))) {
-            return;
-        }
-
-        requestEvent.acceptAsync().join();
-        log.info(requestEvent.getInviter().getUsername() + "\t\t\t邀请机器人加入群");
+        requestEvent.acceptAsync();
+        log.info(Objects.requireNonNull(requestEvent.getInviter()).getUsername() + "\t\t\t邀请机器人加入群");
 //        groupJoinRequestEvent.acceptAsync().join();
 //        log.info(groupJoinRequestEvent.getInviter().getUsername());
     }

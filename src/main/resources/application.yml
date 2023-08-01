@@ -1,3 +1,9 @@
+simbot:
+  bot-configuration-resources:
+    - 'classpath:simbot-bots/simbot.bot.json'
+
+
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -10,3 +16,4 @@ spring:
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+

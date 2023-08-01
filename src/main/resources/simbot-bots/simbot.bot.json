@@ -2,10 +2,11 @@
   "component": "simbot.mirai",
   "code": qqId,
   "passwordInfo": {
-    "type": "qr_code"
+    "type": "text",
+    "text": "password"
   },
   "config": {
-    "protocol": "ANDROID_WATCH",
+    "protocol": "ANDROID_PHONE",
     "deviceInfo": {
       "type": "file_based"
     }

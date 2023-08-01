@@ -9,6 +9,7 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -74,7 +75,15 @@ public class AVDetailsScraper {
 
     private List<String> getPreviewImages(final Document doc) {
         final List<String> images = doc.select("#sample-waterfall a.sample-box").eachAttr("href");
-        Collections.shuffle(images);
+        final var strings = new ArrayList<>();
+        for (final String image : images) {
+            if (!image.startsWith("http")) {// 有些图片不是外链的, 缺少前缀
+                strings.add(BASE_URL + image);
+            } else {
+                strings.add(image);
+            }
+        }
+        Collections.shuffle(strings);
         return images.subList(0, Math.min(5, images.size()));
     }
 

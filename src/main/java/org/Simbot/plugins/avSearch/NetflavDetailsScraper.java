@@ -1,5 +1,8 @@
 package org.Simbot.plugins.avSearch;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.map.SafeConcurrentHashMap;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -32,6 +35,7 @@ public class NetflavDetailsScraper {
     //匹配magnet是否包含[SUB]
     final String patternString = "\\[HD](\\[SUB])?(.*)";
     final Pattern pattern = Pattern.compile(patternString, Pattern.CASE_INSENSITIVE);
+    final Map<String, JSONObject> map = new SafeConcurrentHashMap<>();
 
     /**
      * 获取视频详情
@@ -40,6 +44,13 @@ public class NetflavDetailsScraper {
      * @return 视频详情
      */
     public JSONObject getVideoResponse(final String avNum) {
+        //先从缓存中获取
+        final JSONObject cache = map.get(avNum);
+        if (MapUtil.isNotEmpty(cache)) {
+            log.info("从缓存中获取 {} 的详情", avNum);
+            return cache;
+        }
+        log.info("从网络中获取 {} 的详情", avNum);
         //构建请求
         final Request request = new Request.Builder()
                 .url(searchUrl + avNum)
@@ -64,7 +75,10 @@ public class NetflavDetailsScraper {
             //发送请求
             try (final Response videoResponse = httpClient.newCall(videoRequest).execute()) {
                 //获取返回结果
-                return JSONUtil.parseObj(videoResponse.body().string());
+                final JSONObject entries = JSONUtil.parseObj(videoResponse.body().string());
+                //缓存
+                map.put(avNum, entries);
+                return entries;
             }
         } catch (final Exception e) {
             log.error("请求失败", e);
@@ -87,10 +101,66 @@ public class NetflavDetailsScraper {
         final String[] split = str.split("\\|");
         return Arrays.stream(split)
                 .parallel()
-                .filter(s -> s.contains("streamtape") || s.contains("vidoza") || s.contains("streamsb"))
+                .filter(s -> s.contains("streamtape") || s.contains("vidoza") || s.contains("streamsb") || s.contains("embedgram"))
                 .toList();
 
     }
+
+    /**
+     * 获取视频封面
+     *
+     * @param avNum 番号
+     * @return 视频封面
+     */
+    public String getPreviewHp(final String avNum) {
+        //获取返回结果
+        final JSONObject videoResponse = getVideoResponse(avNum);
+        //获取视频链接
+        final String str = videoResponse.getStr("result");
+        final String[] split = str.split("\\|");
+        for (int i = 0; i < split.length; i++) {
+            final String s = split[i];
+            if (s.contains("preview_hp")) {
+                return split[i + 1];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取预览图
+     *
+     * @param avNum 番号
+     * @return 预览图
+     */
+    public List<String> getPreviewImages(final String avNum) {
+        //获取返回结果
+        final JSONObject videoResponse = getVideoResponse(avNum);
+        //获取视频链接
+        final String str = videoResponse.getStr("result");
+        final String[] split = str.split("\\|");
+        int start = 0;
+        int end = start;
+        for (int i = 0; i < split.length; i++) {
+            final String s = split[i];
+            if (s.equals("previewImages")) {
+                start = i + 1;
+            }
+            if (s.equals("previewVideo")) {
+                end = i;
+                break;
+            }
+        }
+        return new ArrayList<>(Arrays.asList(split).subList(start, end));
+    }
+
+//    public static void main(final String[] args) {
+//        final NetflavDetailsScraper netflavDetailsScraper = new NetflavDetailsScraper();
+//        final List<String> previewImages = netflavDetailsScraper.getPreviewImages("MIDV-373");
+//        System.out.println(previewImages);
+//        final String previewHp = netflavDetailsScraper.getPreviewHp("MIDV-373");
+//        System.out.println(previewHp);
+//    }
 
     /**
      * 获取磁力链接
@@ -122,8 +192,12 @@ public class NetflavDetailsScraper {
                 }
             }
         }
-        map.put("HD", originalSet);
-        map.put("HD[SUB]", filteredSet);
+        if (CollUtil.isNotEmpty(originalSet)) {
+            map.put("HD", originalSet);
+        }
+        if (CollUtil.isNotEmpty(filteredSet)) {
+            map.put("HD[SUB]", filteredSet);
+        }
         log.info("map:{}", map);
         return map;
     }

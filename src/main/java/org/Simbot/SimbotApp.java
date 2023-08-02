@@ -9,7 +9,6 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import xyz.cssxsh.mirai.tool.FixProtocolVersion;
-import xyz.cssxsh.mirai.tool.KFCFactory;
 
 
 @EnableSimbot
@@ -19,8 +18,8 @@ import xyz.cssxsh.mirai.tool.KFCFactory;
 @EnableAsync
 public class SimbotApp {
     public static void main(String... args) {
-        FixProtocolVersion.fetch(BotConfiguration.MiraiProtocol.ANDROID_PHONE,"8.9.63");
-//        KFCFactory.install();
+//        FixProtocolVersion.fetch(BotConfiguration.MiraiProtocol.ANDROID_PHONE,"8.9.68");
+        FixProtocolVersion.fetch(BotConfiguration.MiraiProtocol.ANDROID_PHONE, "8.9.63");
         SpringApplication.run(SimbotApp.class, args);
 
     }

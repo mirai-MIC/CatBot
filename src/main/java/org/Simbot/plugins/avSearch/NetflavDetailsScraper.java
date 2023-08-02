@@ -1,16 +1,16 @@
 package org.Simbot.plugins.avSearch;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.map.SafeConcurrentHashMap;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.Simbot.utils.CaffeineUtil;
 import org.Simbot.utils.OK3HttpClient;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +27,9 @@ import java.util.regex.Pattern;
 @Slf4j
 public class NetflavDetailsScraper {
 
+    @Resource
+    private CaffeineUtil caffeineUtil;
+
     final OkHttpClient httpClient = OK3HttpClient.okHttpClient;
 
     final String searchUrl = "https://netflav.com/api98/video/advanceSearchVideo?type=title&page=1&keyword=";
@@ -35,7 +38,6 @@ public class NetflavDetailsScraper {
     //匹配magnet是否包含[SUB]
     final String patternString = "\\[HD](\\[SUB])?(.*)";
     final Pattern pattern = Pattern.compile(patternString, Pattern.CASE_INSENSITIVE);
-    final Map<String, JSONObject> map = new SafeConcurrentHashMap<>();
 
     /**
      * 获取视频详情
@@ -45,10 +47,10 @@ public class NetflavDetailsScraper {
      */
     public JSONObject getVideoResponse(final String avNum) {
         //先从缓存中获取
-        final JSONObject cache = map.get(avNum);
-        if (MapUtil.isNotEmpty(cache)) {
+        final Optional<JSONObject> cache = caffeineUtil.get(avNum, JSONObject.class);
+        if (cache.isPresent()) {
             log.info("从缓存中获取 {} 的详情", avNum);
-            return cache;
+            return cache.get();
         }
         log.info("从网络中获取 {} 的详情", avNum);
         //构建请求
@@ -77,7 +79,7 @@ public class NetflavDetailsScraper {
                 //获取返回结果
                 final JSONObject entries = JSONUtil.parseObj(videoResponse.body().string());
                 //缓存
-                map.put(avNum, entries);
+                caffeineUtil.put(avNum, entries);
                 return entries;
             }
         } catch (final Exception e) {

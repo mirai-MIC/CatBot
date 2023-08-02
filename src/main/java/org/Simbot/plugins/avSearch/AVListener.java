@@ -1,7 +1,9 @@
 package org.Simbot.plugins.avSearch;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +15,9 @@ import love.forte.simbot.event.GroupMessageEvent;
 import love.forte.simbot.message.MessagesBuilder;
 import love.forte.simbot.resources.Resource;
 import net.mamoe.mirai.message.data.ForwardMessage;
-import org.Simbot.plugins.avSearch.entity.JavData;
+import org.Simbot.mybatisplus.mapper.AvDetailMapper;
+import org.Simbot.mybatisplus.mapper.AvPreviewMapper;
+import org.Simbot.plugins.avSearch.entity.AvDetail;
 import org.Simbot.utils.AsyncHttpClientUtil;
 import org.Simbot.utils.SendMsgUtil;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +42,10 @@ public class AVListener {
 
     private final NetflavDetailsScraper netflavDetailsScraper;
 
+    private final AvDetailMapper avDetailMapper;
+
+    private final AvPreviewMapper avPreviewMapper;
+
     @Listener
     @Filter(value = "/av ", matchType = MatchType.TEXT_STARTS_WITH)
     @SneakyThrows
@@ -49,8 +57,19 @@ public class AVListener {
                 //将输入的内容中间的数字前面加上"-",如果有则不加
                 .replaceFirst("(?<=[a-zA-Z])(?!-)(?=\\d)", "-");
         final var messageReceipt = SendMsgUtil.sendReplyGroupMsg(event, "正在检索中，请稍候");
+        final boolean flag;
+        final AvDetail avDetail;
+        final List<String> previewImages;
         //通过番号获取详情
-        final JavData avDetail = avDetailsScraper.getAVDetail(next);
+        final AvDetail avDetailByDB = avDetailMapper.selectByAvNum(next);
+        if (BeanUtil.isEmpty(avDetailByDB)) {
+            //数据库没有, 通过javbus获取详情
+            flag = true;
+            avDetail = avDetailsScraper.getAVDetail(next);
+        } else {
+            flag = false;
+            avDetail = avDetailByDB;
+        }
         //撤回消息
         SendMsgUtil.withdrawMessage(messageReceipt, 15);
         if (avDetail == null) {
@@ -58,23 +77,35 @@ public class AVListener {
             return;
         }
         //下载封面
-        final var arrayInputStream = CompletableFuture.supplyAsync(() -> AsyncHttpClientUtil.downloadImage(avDetail.getCoverImage()));
+        final var arrayInputStream = CompletableFuture.supplyAsync(() -> AsyncHttpClientUtil.downloadImage(avDetail.getCoverUrl()));
         //获取视频播放地址
-        final var videoPlayUrl = CompletableFuture.supplyAsync(() -> netflavDetailsScraper.getVideoUrl(avDetail.getAvNumber()));
+        final var videoPlayUrl = CompletableFuture.supplyAsync(() -> flag ? netflavDetailsScraper.getVideoUrl(avDetail.getAvNum()) : JSONUtil.toList(avDetail.getOnlinePlayUrl(), String.class));
         //获取磁力链接
-        final var netflavMagnetLink = CompletableFuture.supplyAsync(() -> netflavDetailsScraper.getMagnetLink(avDetail.getAvNumber()));
+        final var netflavMagnetLink = flag ? CompletableFuture.supplyAsync(() -> netflavDetailsScraper.getMagnetLink(avDetail.getAvNum())) : null;
+        //获取番号简介
+        final var description = CompletableFuture.supplyAsync(() -> flag ? netflavDetailsScraper.getDescription(avDetail.getAvNum()) : avDetail.getDescription());
+
         final var builder = new MessagesBuilder();
         //构建消息链
         final var chain = new MiraiForwardMessageBuilder(ForwardMessage.DisplayStrategy.Default);
 
 //        final var previewImages = avDetail.getPreviewImages();//javbus方式获取预览图, 有水印, 换为netflav方式获取
-        final var previewImages = netflavDetailsScraper.getPreviewImages(avDetail.getAvNumber());
+        if (flag) {
+            previewImages = netflavDetailsScraper.getPreviewImages(avDetail.getAvNum());
+        } else {
+            previewImages = avPreviewMapper.selectByAvNum(next);
+        }
+        if (CollUtil.isNotEmpty(previewImages)) {
+            avDetail.setPreviewImages(previewImages);
+        }
+        final String descriptionByNetflav = description.get(15, TimeUnit.SECONDS);
         final var stringBuilder = new StringBuilder()
-                .append("番号 : ").append(avDetail.getAvNumber()).append("\n")
+                .append("番号 : ").append(avDetail.getAvNum()).append("\n")
                 .append("标题 : ").append(avDetail.getTitle()).append("\n")
                 .append("演员 : ").append(avDetail.getActors()).append("\n")
+                .append("简介 : ").append(descriptionByNetflav).append("\n")
                 .append("发行日期 : ").append(avDetail.getReleaseDate()).append("\n")
-                .append("类别 : ").append(avDetail.getCategories().stream().reduce((a, b) -> a + " " + b).orElse("没有找到相关信息")).append("\n")
+                .append("类别 : ").append(JSONUtil.toList(avDetail.getCategories(), String.class).stream().reduce((a, b) -> a + " " + b).orElse("没有找到相关信息")).append("\n")
                 .append("封面 : " + "\n");
 
         builder.text(stringBuilder.toString())
@@ -85,7 +116,7 @@ public class AVListener {
         log.info("开始下载预览图");
         Optional.ofNullable(previewImages)
                 .orElse(Collections.emptyList())
-//                .subList(0, Math.min(previewImages.size(), 5))//最多下载5张预览图
+                .subList(0, Math.min(previewImages.size(), 8))//最多下载8张预览图
                 .parallelStream()
                 .filter(StrUtil::isNotBlank)
                 .map(AsyncHttpClientUtil::downloadImage)
@@ -99,24 +130,54 @@ public class AVListener {
                 });
 
         chain.add(event.getBot(), builder.build());
-        chain.add(event.getBot(), "在线播放地址 :\n" + videoPlayUrl.get(15, TimeUnit.SECONDS).stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息"));
-        final Map<String, Set<String>> map = netflavMagnetLink.get(15, TimeUnit.SECONDS);
+        final List<String> videoPlayLink = videoPlayUrl.get(15, TimeUnit.SECONDS);
+        avDetail.setOnlinePlayUrl(JSONUtil.toJsonStr(videoPlayLink));
+        chain.add(event.getBot(), "在线播放地址 :\n" + videoPlayLink.stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息"));
         final var magnetMessageBuilder = new MessagesBuilder().text("磁力链接 : \n");
-        if (CollUtil.isNotEmpty(map)) {
-            magnetMessageBuilder.text("[HD]\n")
-                    .text(map.get("HD").stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息")).text("\n");
-            if (CollUtil.isNotEmpty(map.get("HD[SUB]"))) {
-                magnetMessageBuilder.text("\n[HD][中文字幕]\n")
-                        .text(map.get("HD[SUB]").stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息")).text("\n");
+        if (flag) {
+            final Map<String, Set<String>> map = netflavMagnetLink.get(15, TimeUnit.SECONDS);
+            if (CollUtil.isNotEmpty(map)) {
+                final Set<String> magnetHD = map.get("HD");
+                avDetail.setMagnetLinkHd(JSONUtil.toJsonStr(magnetHD));
+                magnetMessageBuilder.text("[HD]\n")
+                        .text(magnetHD.stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息")).text("\n");
+                if (CollUtil.isNotEmpty(map.get("HD[SUB]"))) {
+                    final Set<String> magnetSub = map.get("HD[SUB]");
+                    magnetMessageBuilder.text("\n[HD][中文字幕]\n")
+                            .text(magnetSub.stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息")).text("\n");
+                    avDetail.setMagnetLinkSub(JSONUtil.toJsonStr(magnetSub));
+                }
+            } else {
+                magnetMessageBuilder.text(JSONUtil.toList(avDetail.getMagnetLink(), String.class).stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息"));
             }
         } else {
-            magnetMessageBuilder.text(avDetail.getMagnetLink().stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息"));
+            final String magnetLinkHd = JSONUtil.toList(avDetail.getMagnetLinkHd(), String.class).stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息");
+            final String magnetLinkSub = JSONUtil.toList(avDetail.getMagnetLinkSub(), String.class).stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息");
+            if (StrUtil.isNotBlank(magnetLinkHd)) {
+                magnetMessageBuilder.text("[HD]\n")
+                        .text(magnetLinkHd).text("\n");
+                if (StrUtil.isNotBlank(magnetLinkSub)) {
+                    magnetMessageBuilder.text("\n[HD][中文字幕]\n")
+                            .text(magnetLinkSub).text("\n");
+                }
+            } else {
+                magnetMessageBuilder.text(JSONUtil.toList(avDetail.getMagnetLink(), String.class).stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息"));
+            }
         }
 
         chain.add(event.getBot(), magnetMessageBuilder.build());
         //发送消息
         log.info("开始发送消息");
         final var sendAsync = event.getSource().sendAsync(chain.build());
+        if (flag) {
+            avDetail.setDuration(netflavDetailsScraper.getDuration(avDetail.getAvNum()));
+            if (StrUtil.isNotBlank(descriptionByNetflav)) {
+                avDetail.setDescription(descriptionByNetflav);
+            }
+            //保存到数据库
+            avDetailMapper.insert(avDetail);
+            avPreviewMapper.insertList(avDetail.getAvNum(), previewImages);
+        }
         //撤回消息
 //        SendMsgUtil.withdrawMessage(sendAsync.get(30, TimeUnit.SECONDS), 55);
     }

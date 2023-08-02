@@ -204,5 +204,56 @@ public class NetflavDetailsScraper {
         return map;
     }
 
+    /**
+     * 获取视频时长
+     *
+     * @param avNum 番号
+     * @return 视频时长
+     */
+    public int getDuration(final String avNum) {
+        //获取返回结果
+        final JSONObject entries = getVideoResponse(avNum);
+        //获取视频链接
+        final String str = entries.getStr("result");
+        final String[] split = str.split("\\|");
+        for (int i = 0; i < split.length; i++) {
+            final String s = split[i];
+            if (s.contains("duration")) {
+                return Integer.parseInt(extractNumber(split[i + 1]));
+            }
+        }
+        return 0;
+    }
 
+    /**
+     * 获取视频标题, 翻译版
+     *
+     * @param avNum 番号
+     * @return 视频标题
+     */
+    public String getDescription(final String avNum) {
+        //获取返回结果
+        final JSONObject entries = getVideoResponse(avNum);
+        //获取视频链接
+        final String str = entries.getStr("result");
+        final String[] split = str.split("\\|");
+        for (int i = 0; i < split.length; i++) {
+            final String s = split[i];
+            if (s.equals("description")) {
+                return split[i + 1];
+            }
+        }
+        return null;
+    }
+
+
+    public String extractNumber(final String input) {
+        final Pattern pattern = Pattern.compile("\\d+");
+        final Matcher matcher = pattern.matcher(input);
+        final StringBuilder result = new StringBuilder();
+        while (matcher.find()) {
+            result.append(matcher.group());
+        }
+        return result.toString();
+    }
 }

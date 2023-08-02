@@ -1,7 +1,9 @@
 package org.Simbot.plugins.avSearch;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
-import org.Simbot.plugins.avSearch.entity.JavData;
+import cn.hutool.json.JSONUtil;
+import org.Simbot.plugins.avSearch.entity.AvDetail;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -26,7 +28,7 @@ public class AVDetailsScraper {
 
     private static final Pattern IMAGE_PATTERN = Pattern.compile("img = '(.*?)';", Pattern.DOTALL);
 
-    public JavData getAVDetail(final String avNumber) throws IOException {
+    public AvDetail getAVDetail(final String avNumber) throws IOException {
         if (StrUtil.isBlank(avNumber)) {
             return null;
         }
@@ -43,8 +45,20 @@ public class AVDetailsScraper {
         final var categories = getCategories(doc);
         final var previewImages = getPreviewImages(doc);
         final var magnetLink = getMagnetLink(avNumber, doc);
-
-        return new JavData(title, actors, releaseDate, coverImage, previewImages, magnetLink, avNumber, categories);
+        return new AvDetail(null,
+                avNumber,
+                title,
+                actors,
+                coverImage,
+                JSONUtil.toJsonStr(magnetLink),
+                null,
+                null,
+                null,
+                title,
+                null,
+                JSONUtil.toJsonStr(categories),
+                DateUtil.parseDate(releaseDate).toTimestamp(),
+                previewImages);
     }
 
     private String getTitle(final Document doc) {

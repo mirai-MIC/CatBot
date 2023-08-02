@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.Simbot.mybatisplus.mapper.AvDetailMapper">
+    <resultMap id="BaseResultMap" type="org.Simbot.plugins.avSearch.entity.AvDetail">
+        <!--@mbg.generated-->
+        <!--@Table av_detail-->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="av_Num" jdbcType="VARCHAR" property="avNum"/>
+        <result column="actors" jdbcType="VARCHAR" property="actors"/>
+        <result column="cover_Url" jdbcType="VARCHAR" property="coverUrl"/>
+        <result column="magnet_Link" jdbcType="VARCHAR" property="magnetLink"/>
+        <result column="online_play_Url" jdbcType="VARCHAR" property="onlinePlayUrl"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="duration" jdbcType="INTEGER" property="duration"/>
+        <result column="categories" jdbcType="VARCHAR" property="categories"/>
+        <result column="release_Date" jdbcType="TIMESTAMP" property="releaseDate"/>
+        <result column="magnet_link_hd" jdbcType="VARCHAR" property="magnetLinkHd"/>
+        <result column="magnet_link_sub" jdbcType="VARCHAR" property="magnetLinkSub"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id, av_Num, actors, cover_Url, magnet_Link, online_play_Url, description, duration,
+        categories, release_Date, magnet_link_hd, magnet_link_sub, title
+    </sql>
+
+    <select id="selectByAvNum" resultMap="BaseResultMap">
+        <!--@mbg.generated-->
+        select
+        <include refid="Base_Column_List"/>
+        from av_detail
+        where av_Num = #{avNum,jdbcType=VARCHAR}
+    </select>
+</mapper>

@@ -1,6 +1,7 @@
 package org.Simbot.plugins.avSearch;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -219,7 +220,11 @@ public class NetflavDetailsScraper {
         for (int i = 0; i < split.length; i++) {
             final String s = split[i];
             if (s.contains("duration")) {
-                return Integer.parseInt(extractNumber(split[i + 1]));
+                final String s1 = extractNumber(split[i + 1]);
+                if (StrUtil.isNotBlank(s1)) {
+                    return Integer.parseInt(s1);
+                }
+                return 0;
             }
         }
         return 0;

@@ -89,7 +89,7 @@ public class AVDetailsScraper {
 
     private List<String> getPreviewImages(final Document doc) {
         final List<String> images = doc.select("#sample-waterfall a.sample-box").eachAttr("href");
-        final var strings = new ArrayList<>();
+        final var strings = new ArrayList<String>();
         for (final String image : images) {
             if (!image.startsWith("http")) {// 有些图片不是外链的, 缺少前缀
                 strings.add(BASE_URL + image);
@@ -98,7 +98,7 @@ public class AVDetailsScraper {
             }
         }
         Collections.shuffle(strings);
-        return images.subList(0, Math.min(5, images.size()));
+        return strings;
     }
 
     private List<String> getMagnetLink(final String avNumber, final Document doc) throws IOException {

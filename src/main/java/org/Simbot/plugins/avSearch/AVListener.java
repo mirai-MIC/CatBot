@@ -91,7 +91,12 @@ public class AVListener {
 
 //        final var previewImages = avDetail.getPreviewImages();//javbus方式获取预览图, 有水印, 换为netflav方式获取
         if (flag) {
-            previewImages = netflavDetailsScraper.getPreviewImages(avDetail.getAvNum());
+            final List<String> netflavPreviewImgs = netflavDetailsScraper.getPreviewImages(avDetail.getAvNum());
+            if (netflavPreviewImgs.size() > 1 || netflavPreviewImgs.size() >= avDetail.getPreviewImages().size()) {
+                previewImages = netflavPreviewImgs;
+            } else {
+                previewImages = avDetail.getPreviewImages();
+            }
         } else {
             previewImages = avPreviewMapper.selectByAvNum(next);
         }
@@ -151,12 +156,12 @@ public class AVListener {
                 magnetMessageBuilder.text(JSONUtil.toList(avDetail.getMagnetLink(), String.class).stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息"));
             }
         } else {
-            final String magnetLinkHd = JSONUtil.toList(avDetail.getMagnetLinkHd(), String.class).stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息");
-            final String magnetLinkSub = JSONUtil.toList(avDetail.getMagnetLinkSub(), String.class).stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息");
-            if (StrUtil.isNotBlank(magnetLinkHd)) {
+            if (StrUtil.isNotBlank(avDetail.getMagnetLinkHd())) {
+                final String magnetLinkHd = JSONUtil.toList(avDetail.getMagnetLinkHd(), String.class).stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息");
                 magnetMessageBuilder.text("[HD]\n")
                         .text(magnetLinkHd).text("\n");
-                if (StrUtil.isNotBlank(magnetLinkSub)) {
+                if (StrUtil.isNotBlank(avDetail.getMagnetLinkSub())) {
+                    final String magnetLinkSub = JSONUtil.toList(avDetail.getMagnetLinkSub(), String.class).stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息");
                     magnetMessageBuilder.text("\n[HD][中文字幕]\n")
                             .text(magnetLinkSub).text("\n");
                 }

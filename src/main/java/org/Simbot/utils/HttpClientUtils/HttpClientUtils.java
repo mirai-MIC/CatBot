@@ -8,62 +8,59 @@ import org.asynchttpclient.RequestBuilder;
 import org.asynchttpclient.Response;
 import org.asynchttpclient.util.HttpConstants;
 
-import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 @Slf4j
 public class HttpClientUtils {
 
     private static final int DEFAULT_TIMEOUT_SECONDS = 10;
 
+
+    /**
+     * 发起HTTP GET请求
+     *
+     * @param url     请求URL
+     * @param params  查询参数
+     * @param headers 请求头
+     * @return 响应内容
+     */
     @SneakyThrows
     public static String httpGet(String url, Map<String, String> params, Map<String, String> headers) {
+        try (AsyncHttpClient asyncHttpClient = Dsl.asyncHttpClient()) {
+            RequestBuilder requestBuilder = new RequestBuilder(HttpConstants.Methods.GET).setUrl(GetQueryParams.appendQueryParams(url, params));
 
-        try {
-            AsyncHttpClient asyncHttpClient = Dsl.asyncHttpClient();
-            RequestBuilder requestBuilder = new RequestBuilder(HttpConstants.Methods.GET);
-            requestBuilder.setUrl(GetQueryParams.appendQueryParams(url, params));
+            if (headers != null) {
+                HttpHeadersBuilder.create().addHeaders(headers).applyHeaders(requestBuilder);
+            }
+            Response response = asyncHttpClient.executeRequest(requestBuilder.build()).get(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            return response.getResponseBody();
+        }
+    }
+
+    /**
+     * 发起HTTP POST请求
+     *
+     * @param url     请求URL
+     * @param params  请求参数
+     * @param headers 请求头
+     * @return 响应内容
+     */
+    @SneakyThrows
+    public static String httpPost(String url, Map<String, String> params, Map<String, String> headers) {
+        try (AsyncHttpClient asyncHttpClient = Dsl.asyncHttpClient()) {
+            RequestBuilder requestBuilder = new RequestBuilder(HttpConstants.Methods.POST).setUrl(url);
 
             if (headers != null) {
                 HttpHeadersBuilder.create().addHeaders(headers).applyHeaders(requestBuilder);
             }
 
+            if (params != null) {
+                ParamsBuilder.create().addParams(params).applyParams(requestBuilder);
+            }
 
             Response response = asyncHttpClient.executeRequest(requestBuilder.build()).get(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
             return response.getResponseBody();
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            log.warn(MessageFormat.format("get请求异常{0}", e.getMessage()));
         }
-        return null;
-    }
-
-    public static String httpPost(String url, Map<String, String> params, Map<String, String> headers) throws IOException {
-        AsyncHttpClient asyncHttpClient = Dsl.asyncHttpClient();
-
-        RequestBuilder requestBuilder = new RequestBuilder(HttpConstants.Methods.POST);
-        requestBuilder.setUrl(url);
-        if (headers != null) {
-            HttpHeadersBuilder.create().addHeaders(headers).applyHeaders(requestBuilder);
-        }
-        if (params != null) {
-            ParamsBuilder.create().addParams(params).applyParams(requestBuilder);
-        }
-
-        try {
-            Response response = asyncHttpClient.executeRequest(requestBuilder.build()).get(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-            return response.getResponseBody();
-        } catch (InterruptedException | ExecutionException e) {
-            log.warn(e.getMessage());
-        } catch (TimeoutException e) {
-            throw new RuntimeException(e);
-        } finally {
-            asyncHttpClient.close();
-        }
-
-        return null;
     }
 }

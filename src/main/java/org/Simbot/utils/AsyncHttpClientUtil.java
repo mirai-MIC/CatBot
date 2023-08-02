@@ -26,11 +26,7 @@ import static org.asynchttpclient.Dsl.asyncHttpClient;
 @Slf4j
 public class AsyncHttpClientUtil {
 
-    private static AsyncHttpClient client = null;
-
-    private AsyncHttpClientUtil() {
-        client = asyncHttpClient(buildClientConfig());
-    }
+    private static final AsyncHttpClient client = asyncHttpClient(buildClientConfig());
 
     private static DefaultAsyncHttpClientConfig buildClientConfig() {
         return new DefaultAsyncHttpClientConfig.Builder()

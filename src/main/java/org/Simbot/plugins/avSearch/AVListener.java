@@ -49,11 +49,10 @@ public class AVListener {
                 //将输入的内容中间的数字前面加上"-",如果有则不加
                 .replaceFirst("(?<=[a-zA-Z])(?!-)(?=\\d)", "-");
         final var messageReceipt = SendMsgUtil.sendReplyGroupMsg(event, "正在检索中，请稍候");
-        //撤回消息
-        SendMsgUtil.withdrawMessage(messageReceipt, 15);
         //通过番号获取详情
         final JavData avDetail = avDetailsScraper.getAVDetail(next);
-
+        //撤回消息
+        SendMsgUtil.withdrawMessage(messageReceipt, 15);
         if (avDetail == null) {
             SendMsgUtil.sendSimpleGroupMsg(event, "没有找到相关信息");
             return;
@@ -105,9 +104,11 @@ public class AVListener {
         final var magnetMessageBuilder = new MessagesBuilder().text("磁力链接 : \n");
         if (CollUtil.isNotEmpty(map)) {
             magnetMessageBuilder.text("[HD]\n")
-                    .text(map.get("HD").stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息")).text("\n")
-                    .text("\n[HD][中文字幕]\n")
-                    .text(map.get("HD[SUB]").stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息")).text("\n");
+                    .text(map.get("HD").stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息")).text("\n");
+            if (CollUtil.isNotEmpty(map.get("HD[SUB]"))) {
+                magnetMessageBuilder.text("\n[HD][中文字幕]\n")
+                        .text(map.get("HD[SUB]").stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息")).text("\n");
+            }
         } else {
             magnetMessageBuilder.text(avDetail.getMagnetLink().stream().reduce((a, b) -> a + "\n" + b).orElse("没有找到相关信息"));
         }

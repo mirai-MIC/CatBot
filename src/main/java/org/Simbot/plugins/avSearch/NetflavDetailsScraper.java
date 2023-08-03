@@ -8,11 +8,8 @@ import cn.hutool.json.JSONUtil;
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import org.Simbot.utils.AsyncHttpClientUtil;
 import org.Simbot.utils.CaffeineUtil;
-import org.Simbot.utils.OK3HttpClient;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -30,8 +27,6 @@ public class NetflavDetailsScraper {
 
     @Resource
     private CaffeineUtil caffeineUtil;
-
-    final OkHttpClient httpClient = OK3HttpClient.okHttpClient;
 
     final String searchUrl = "https://netflav.com/api98/video/advanceSearchVideo?type=title&page=1&keyword=";
     final String videoUrl = "https://netflav.com/api98/video/v2/retrieveVideo/";
@@ -54,39 +49,27 @@ public class NetflavDetailsScraper {
             return cache.get();
         }
         log.info("从网络中获取 {} 的详情", avNum);
-        //构建请求
-        final Request request = new Request.Builder()
-                .url(searchUrl + avNum)
-                .build();
         //发送请求
-        try (final Response response = httpClient.newCall(request).execute()) {
-            final JSONObject obj = JSONUtil.parseObj(response.body().string());
-            final JSONObject jsonObject = obj.getJSONObject("result");
-            if (jsonObject.getInt("total") <= 0) {
-                log.info("没有找到相关信息");
-                return null;
-            }
-            //获取搜索结果
-            final JSONArray docs = jsonObject.getJSONArray("docs");
-            //获取第一个结果,即最匹配的结果
-            final JSONObject videoEntity = docs.getJSONObject(0);
-            //获取视频id
-            final String videoId = videoEntity.getStr("videoId");
-            final Request videoRequest = new Request.Builder()
-                    .url(videoUrl + videoId)
-                    .build();
-            //发送请求
-            try (final Response videoResponse = httpClient.newCall(videoRequest).execute()) {
-                //获取返回结果
-                final JSONObject entries = JSONUtil.parseObj(videoResponse.body().string());
-                //缓存
-                caffeineUtil.put(avNum, entries);
-                return entries;
-            }
-        } catch (final Exception e) {
-            log.error("请求失败", e);
+        final var responsePair = AsyncHttpClientUtil.doGet(searchUrl + avNum);
+        final JSONObject obj = JSONUtil.parseObj(responsePair.getValue().getResponseBody());
+        final JSONObject jsonObject = obj.getJSONObject("result");
+        if (jsonObject.getInt("total") <= 0) {
+            log.info("没有找到相关信息");
             return null;
         }
+        //获取搜索结果
+        final JSONArray docs = jsonObject.getJSONArray("docs");
+        //获取第一个结果,即最匹配的结果
+        final JSONObject videoEntity = docs.getJSONObject(0);
+        //获取视频id
+        final String videoId = videoEntity.getStr("videoId");
+        //发送请求
+        final var videoResp = AsyncHttpClientUtil.doGet(videoUrl + videoId);
+        //获取返回结果
+        final JSONObject entries = JSONUtil.parseObj(videoResp.getValue().getResponseBody());
+        //缓存
+        caffeineUtil.put(avNum, entries);
+        return entries;
     }
 
     /**

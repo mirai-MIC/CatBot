@@ -97,7 +97,7 @@ public class AVDetailsScraper {
                 strings.add(image);
             }
         }
-        Collections.shuffle(strings);
+//        Collections.shuffle(strings);
         return strings;
     }
 

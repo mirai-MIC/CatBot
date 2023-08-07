@@ -32,7 +32,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/love.forte.simbot.boot/simboot-core-springboot-starter -->
         <!--        simbot-->
         <dependency>
             <groupId>love.forte.simbot.boot</groupId>
@@ -63,7 +62,7 @@
             <artifactId>fix</artifactId>
             <version>1.8.4</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/fix-protocol-version-1.9.10.mirai2.jar</systemPath>
+            <systemPath>${project.basedir}/lib/fix-protocol-version-1.9.11.mirai2.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -116,6 +115,10 @@
                 <exclusion>
                     <artifactId>spring-boot-autoconfigure</artifactId>
                     <groupId>org.springframework.boot</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -214,7 +217,13 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.95.Final</version>
+            <version>4.1.96.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-kqueue</artifactId>
+            <version>4.1.96.Final</version>
+            <classifier>osx-aarch_64</classifier>
         </dependency>
     </dependencies>
     <build>

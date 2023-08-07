@@ -42,7 +42,8 @@ public class AsyncHttpClientUtil {
             64,
             60L,
             TimeUnit.SECONDS,
-            new LinkedBlockingQueue<>());
+            new LinkedBlockingQueue<>(500),
+            new ThreadPoolExecutor.CallerRunsPolicy());
 
     private static DefaultAsyncHttpClientConfig buildClientConfig() {
         final String osName = System.getProperty("os.name");
@@ -56,8 +57,8 @@ public class AsyncHttpClientUtil {
         }
 
         return new DefaultAsyncHttpClientConfig.Builder()
-                .setMaxConnections(200)//连接池最大连接数
-                .setMaxConnectionsPerHost(50)//单个服务器最大连接数,不设置此值,爬虫会创建大量的连接,导致服务器拒绝服务
+                .setMaxConnections(500)//连接池最大连接数
+                .setMaxConnectionsPerHost(100)//单个服务器最大连接数,不设置此值,爬虫会创建大量的连接,导致服务器拒绝服务
                 .setUseInsecureTrustManager(true)//是否信任所有ssl链接
                 .setEventLoopGroup(eventLoopGroup)//根据当前系统设置eventLoopGroup
                 .setConnectTimeout(60 * 1000)//连接超时时间

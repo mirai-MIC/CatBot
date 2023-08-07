@@ -55,14 +55,14 @@ public class AvDetail implements Serializable {
      * 视频磁力链接
      */
     @TableField(value = "magnet_Link")
-    @Size(max = 2000, message = "视频磁力链接最大长度要小于 2000")
+    @Size(max = 5000, message = "视频磁力链接最大长度要小于 5000")
     private String magnetLink;
 
     /**
      * 高清磁力链接
      */
     @TableField(value = "magnet_link_hd")
-    @Size(max = 2000, message = "视频磁力链接最大长度要小于 2000")
+    @Size(max = 5000, message = "视频磁力链接最大长度要小于 5000")
     private String magnetLinkHd;
 
     /**

@@ -8,6 +8,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.asynchttpclient.*;
+import org.asynchttpclient.netty.ws.NettyWebSocket;
+import org.asynchttpclient.ws.WebSocketUpgradeHandler;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -186,6 +188,18 @@ public class AsyncHttpClientUtil {
         return Pair.of(builder.build(), builder.execute());
     }
 
+    public static Pair<Request, ListenableFuture<NettyWebSocket>> doWebSocket(final String url, final Consumer<BoundRequestBuilder> preRequest) {
+        if (url == null) {
+            return null;
+        }
+        final BoundRequestBuilder builder = client.prepareGet(url);
+        if (preRequest != null) {
+            preRequest.accept(builder);
+        }
+        final ListenableFuture<NettyWebSocket> execute = builder.execute(new WebSocketUpgradeHandler.Builder().build());
+        return Pair.of(builder.build(), execute);
+    }
+
     /**
      * POST阻塞请求，直到响应数据
      *
@@ -284,9 +298,18 @@ public class AsyncHttpClientUtil {
 
     public static void shutdown() {
         try {
-            client.close();
-            eventLoopGroup.shutdownGracefully();
-            log.warn("关闭asyncHttpClient服务");
+            if (!client.isClosed()) {
+                client.close();
+                log.warn("关闭asyncHttpClient服务client");
+            }
+            if (!eventLoopGroup.isShutdown()) {
+                eventLoopGroup.shutdownGracefully();
+                log.warn("关闭asyncHttpClient服务eventLoopGroup");
+            }
+            if (!resultHandlerExecutor.isShutdown()) {
+                resultHandlerExecutor.shutdown();
+                log.warn("关闭asyncHttpClient服务threadPool");
+            }
         } catch (final IOException e) {
             log.error("关闭asyncHttpClient服务失败", e);
         }

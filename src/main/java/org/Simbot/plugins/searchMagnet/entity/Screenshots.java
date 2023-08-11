@@ -1,4 +1,4 @@
-package org.Simbot.plugins.searchMagnet;
+package org.Simbot.plugins.searchMagnet.entity;
 
 import lombok.Data;
 

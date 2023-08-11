@@ -10,6 +10,8 @@ import love.forte.simboot.filter.MatchType;
 import love.forte.simbot.event.GroupMessageEvent;
 import love.forte.simbot.message.MessagesBuilder;
 import love.forte.simbot.resources.Resource;
+import org.Simbot.plugins.searchMagnet.entity.MagnetSearchData;
+import org.Simbot.plugins.searchMagnet.entity.Screenshots;
 import org.Simbot.utils.AsyncHttpClientUtil;
 import org.Simbot.utils.SendMsgUtil;
 import org.jetbrains.annotations.NotNull;

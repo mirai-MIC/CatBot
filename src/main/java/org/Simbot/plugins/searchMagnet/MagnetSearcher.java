@@ -3,6 +3,7 @@ package org.Simbot.plugins.searchMagnet;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.Simbot.plugins.searchMagnet.entity.MagnetSearchData;
 import org.Simbot.utils.AsyncHttpClientUtil;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.Response;

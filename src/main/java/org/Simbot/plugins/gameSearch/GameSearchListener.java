@@ -8,6 +8,7 @@ import love.forte.simboot.annotation.Listener;
 import love.forte.simboot.filter.MatchType;
 import love.forte.simbot.component.mirai.message.MiraiForwardMessageBuilder;
 import love.forte.simbot.event.GroupMessageEvent;
+import love.forte.simbot.message.Messages;
 import love.forte.simbot.message.MessagesBuilder;
 import love.forte.simbot.resources.Resource;
 import net.mamoe.mirai.message.data.ForwardMessage;
@@ -21,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,34 +50,44 @@ public class GameSearchListener {
         }
         final ByteArrayInputStream stream = AsyncHttpClientUtil.downloadImage(searchEntity.getImage());
 
-        final int appId = searchEntity.getSteamAppid();
-        final GameInfo gameInfo = SteamSearchScraper.searchByGameId(appId);
-        final String introduction = SteamSearchScraper.searchIntroductionById(appId);
         //构建转发消息链
         final var chain = new MiraiForwardMessageBuilder(ForwardMessage.DisplayStrategy.Default);
+
+        final int appId = searchEntity.getSteamAppid();
+        if ("console".equals(searchEntity.getGameType())) {
+            final Messages messages = SteamSearchScraper.searchConsoleGame(searchEntity);
+            chain.add(event.getBot(), messages);
+            event.getSource().sendAsync(chain.build());
+            return;
+        }
+        final GameInfo gameInfo = SteamSearchScraper.searchByGameId(appId);
+        final String introduction = SteamSearchScraper.searchIntroductionById(appId);
         final MessagesBuilder builder = new MessagesBuilder();
         final GamePrice price = gameInfo.getPrice();
         final List<GameDlc> dlcs = gameInfo.getDlcs();
-        final int discount = price.getDiscount();
-        builder.image(Resource.of(stream)).text("\n")
-                .text("游戏名称：").text(gameInfo.getName()).text("\n")
-                .text("steam链接：").text("https://store.steampowered.com/app/" + appId).text("\n")
-                .text("游戏类型：").text(gameInfo.getGenres().stream().reduce((a, b) -> a + " " + b).orElse("")).text("\n")
-                .text("游戏评分：").text(searchEntity.getScore()).text("\n")
-                .text(gameInfo.getPositiveDesc()).text("\n")//好评率
+        final StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("游戏名称：").append(gameInfo.getName()).append("\n")
+                .append("steam链接：").append("https://store.steampowered.com/app/").append(appId).append("\n")
+                .append("游戏类型：").append(gameInfo.getGenres().stream().reduce((a, b) -> a + " " + b).orElse("")).append("\n")
+                .append("游戏评分：").append(Optional.ofNullable(searchEntity.getScore()).orElse(searchEntity.getScoreDesc())).append("\n")
+                .append(gameInfo.getPositiveDesc()).append("\n")//好评率
         ;
-        if (gameInfo.getSupportChinese() == 1) {
-            builder.text("是否支持中文：").text("是").text("\n");
-        }
-        Optional.ofNullable(gameInfo.getNameEn()).ifPresent(nameEn -> builder.text("英文名称：").text(nameEn).text("\n"));
 
-        final MessagesBuilder priceBuilder = buildPriceBuilder(price);
+        stringBuilder.append("是否支持中文：").append(gameInfo.getSupportChinese() == 1 ? "是" : "否").append("\n");
 
+        Optional.ofNullable(gameInfo.getNameEn()).ifPresent(nameEn -> stringBuilder.append("英文名称：").append(nameEn).append("\n"));
+
+        builder.image(Resource.of(stream));
+        builder.text(stringBuilder.toString());
         chain.add(event.getBot(), builder.build());
-        chain.add(event.getBot(), priceBuilder.build());
 
+        //免费游戏不显示价格, 比如apex
+        if (price != null) {
+            final MessagesBuilder priceBuilder = buildPriceBuilder(price);
+            chain.add(event.getBot(), priceBuilder.build());
+        }
         if (CollUtil.isNotEmpty(dlcs)) {
-            chain.add(event.getBot(), "DLC列表：\n");
+            chain.add(event.getBot(), "↘ ↓ ↓DLC列表↓ ↓ ↙\n");
             final List<MessagesBuilder> dlcList = buildDlcList(dlcs);
             dlcList.parallelStream().forEach(dlc -> chain.add(event.getBot(), dlc.build()));
         }
@@ -85,18 +97,24 @@ public class GameSearchListener {
     }
 
     public MessagesBuilder buildPriceBuilder(final GamePrice price) {
+        if (price == null) {
+            return null;
+        }
         final MessagesBuilder priceBuilder = new MessagesBuilder();
-        priceBuilder.text("steam国区目前价格：").text(price.getCurrent()).text("\n");
-        if (price.getDiscount() != 0) {
-            priceBuilder.text("steam目前折扣：   ").text("-" + price.getDiscount() + "%").text("\n")
-                    .text("是否为史低折扣：   ").text(price.getIsLowest() == 0 ? "否" : "是").text("\n")
-                    .text("折扣剩余时间：    ").text(price.getDeadlineDate()).text("\n")
+        final StringBuilder builder = new StringBuilder();
+        builder.append("steam国区目前价格：").append(Optional.ofNullable(price.getCurrent()).orElse("此区域未找到价格")).append("\n");
+        if (0 != price.getDiscount()) {
+            builder.append("steam目前折扣        ：").append("-").append(price.getDiscount()).append("%").append("\n")
+                    .append("是否为史低折扣        ：").append(price.getIsLowest() == 0 ? "否" : "是").append("\n")
+                    .append("折扣剩余时间            ：").append(Optional.ofNullable(price.getDeadlineDate()).orElse("商家未明确结束时间")).append("\n")
             ;
         }
         final var lowestPrice = Optional.ofNullable(price.getLowestPriceRaw()).orElse(String.valueOf(price.getLowestPrice()));
-        priceBuilder.text("steam历史最低价：").text(lowestPrice).text("\n")
-                .text("steam历史最低折扣：").text("-" + price.getLowestDiscount() + "%").text("\n");
+        builder.append("steam历史最低价    ：").append(lowestPrice).append("\n")
+                .append("steam历史最低折扣：").append("-").append(price.getLowestDiscount()).append("%").append("\n");
+        priceBuilder.text(builder.toString());
         return priceBuilder;
+
     }
 
     public List<MessagesBuilder> buildDlcList(final List<GameDlc> dlcs) {
@@ -109,10 +127,18 @@ public class GameSearchListener {
         final ByteArrayInputStream stream = AsyncHttpClientUtil.downloadImage(dlc.getImage());
         final GamePrice price = dlc.getPrice();
         final MessagesBuilder priceBuilder = buildPriceBuilder(price);
-        builder.image(Resource.of(stream)).text("\n")
-                .text("DLC名称：").text(dlc.getName()).text("\n")
+        Optional.ofNullable(stream).ifPresent(s -> {
+            try {
+                builder.image(Resource.of(stream)).text("\n");
+            } catch (final IOException e) {
+                log.error("此dlc没有图片或图片下载失败", e);
+            }
+        });
+        builder.text("DLC名称：").text(dlc.getName()).text("\n")
         ;
-        builder.append(priceBuilder.build());
+        if (priceBuilder != null) {
+            builder.append(priceBuilder.build());
+        }
         return builder;
     }
 

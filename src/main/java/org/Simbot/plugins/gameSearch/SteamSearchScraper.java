@@ -5,6 +5,9 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import love.forte.simbot.message.Messages;
+import love.forte.simbot.message.MessagesBuilder;
+import love.forte.simbot.resources.Resource;
 import org.Simbot.plugins.gameSearch.entity.BlackBoxSearchEntity;
 import org.Simbot.plugins.gameSearch.entity.GameInfo;
 import org.Simbot.plugins.gameSearch.entity.GameOnlineData;
@@ -14,6 +17,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 
 /**
@@ -29,6 +33,12 @@ public class SteamSearchScraper {
     private static final String BLACK_BOX_ID_URL = "https://api.xiaoheihe.cn/game/get_game_detail/?h_src=game_rec_a&appid=";
     private static final String BLACK_BOX_INTRODUCTION_URL = "https://api.xiaoheihe.cn/game/game_introduction?steam_appid=";
 
+    /**
+     * 根据游戏名搜索游戏
+     *
+     * @param name 游戏名
+     * @return 游戏信息
+     */
     public static BlackBoxSearchEntity searchByName(final String name) {
         final var pair = AsyncHttpClientUtil.doGet(BLACK_BOX_NAME_URL + name);
         final String body = pair.getValue().getResponseBody();
@@ -45,6 +55,12 @@ public class SteamSearchScraper {
         }
     }
 
+    /**
+     * 根据游戏名搜索pc游戏
+     *
+     * @param gameId 游戏id
+     * @return 游戏信息
+     */
     public static GameInfo searchByGameId(final int gameId) {
         final var responsePair = AsyncHttpClientUtil.doGet(BLACK_BOX_ID_URL + gameId);
         final String body = responsePair.getValue().getResponseBody();
@@ -56,6 +72,12 @@ public class SteamSearchScraper {
         return gameInfo;
     }
 
+    /**
+     * 根据游戏id搜索游戏简介
+     *
+     * @param gameId 游戏id
+     * @return 游戏简介
+     */
     @SneakyThrows
     public static String searchIntroductionById(final int gameId) {
         final Document document = Jsoup.connect(BLACK_BOX_INTRODUCTION_URL + gameId).get();
@@ -77,5 +99,25 @@ public class SteamSearchScraper {
             }
         });
         return result.toString();
+    }
+
+    /**
+     * 根据游戏id搜索主机游戏
+     *
+     * @param entity 游戏信息
+     * @return 消息
+     */
+    @SneakyThrows
+    public static Messages searchConsoleGame(final BlackBoxSearchEntity entity) {
+        final MessagesBuilder builder = new MessagesBuilder();
+        final ByteArrayInputStream stream = AsyncHttpClientUtil.downloadImage(entity.getImage());
+        builder.image(Resource.of(stream))
+                .text("游戏名：" + entity.getName() + "\n")
+                .text("英文名：" + entity.getNameEn() + "\n")
+                .text("游戏平台：" + entity.getPlatforms().get(0) + "\n")
+                .text("游戏分数：" + entity.getScore() + "\n")
+        ;
+        return builder.build();
+
     }
 }

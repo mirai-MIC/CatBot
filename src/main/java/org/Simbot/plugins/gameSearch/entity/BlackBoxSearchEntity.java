@@ -21,6 +21,8 @@ public class BlackBoxSearchEntity {
     //游戏分数
     private String score;
 
+    private String scoreDesc;
+
     //游戏价格
     private GamePrice price;
 
@@ -28,6 +30,8 @@ public class BlackBoxSearchEntity {
     private boolean isFree;
 
     private String name;
+
+    private String nameEn;
 
     private String gameType;
 }

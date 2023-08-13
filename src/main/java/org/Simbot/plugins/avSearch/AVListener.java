@@ -18,6 +18,7 @@ import net.mamoe.mirai.message.data.ForwardMessage;
 import org.Simbot.mybatisplus.mapper.AvDetailMapper;
 import org.Simbot.mybatisplus.mapper.AvPreviewMapper;
 import org.Simbot.plugins.avSearch.entity.AvDetail;
+import org.Simbot.plugins.avSearch.entity.FC2SearchEntity;
 import org.Simbot.utils.AsyncHttpClientUtil;
 import org.Simbot.utils.SendMsgUtil;
 import org.jetbrains.annotations.NotNull;
@@ -51,11 +52,37 @@ public class AVListener {
     @SneakyThrows
     public void getAVMessage(@NotNull final GroupMessageEvent event) {
         //获取用户输入的内容
-        final String next = event.getMessageContent().getPlainText()
+        String next = event.getMessageContent().getPlainText()
                 .substring(4)
                 .toUpperCase(Locale.ROOT)
-                //将输入的内容中间的数字前面加上"-",如果有则不加
-                .replaceFirst("(?<=[a-zA-Z])(?!-)(?=\\d)", "-");
+                //去除空格
+                .replaceAll("\\s", "");
+        if (StrUtil.isBlank(next)) {
+            SendMsgUtil.sendSimpleGroupMsg(event, "请输入番号");
+            return;
+        }
+        if (!next.startsWith("FC2")) {
+            //将输入的内容中间的数字前面加上"-",如果有则不加
+            next = next.replaceFirst("(?<=[a-zA-Z])(?!-)(?=\\d)", "-");
+        } else {
+            next = next.replaceFirst("^FC2(?!-)", "FC2-");
+        }
+
+        //构建消息链
+        final var chain = new MiraiForwardMessageBuilder(ForwardMessage.DisplayStrategy.Default);
+
+        if (next.startsWith("FC2")) {
+            SendMsgUtil.withdrawMessage(SendMsgUtil.sendSimpleGroupMsg(event, "正在检索fc2中，请稍候"), 15);
+            final List<FC2SearchEntity> list = FC2Scraper.searchByAvNum(next);
+            if (CollUtil.isEmpty(list) || null == list.get(0)) {
+                SendMsgUtil.sendSimpleGroupMsg(event, "没有找到相关信息");
+                return;
+            }
+            final MessagesBuilder builder = FC2Scraper.buildFC2Message(list.get(0));
+            chain.add(event.getBot(), builder.build());
+            event.getSource().sendAsync(chain.build());
+            return;
+        }
         final var messageReceipt = SendMsgUtil.sendReplyGroupMsg(event, "正在检索中，请稍候");
         final boolean flag;
         final AvDetail avDetail;
@@ -86,8 +113,7 @@ public class AVListener {
         final var description = CompletableFuture.supplyAsync(() -> flag ? netflavDetailsScraper.getDescription(avDetail.getAvNum()) : avDetail.getDescription());
 
         final var builder = new MessagesBuilder();
-        //构建消息链
-        final var chain = new MiraiForwardMessageBuilder(ForwardMessage.DisplayStrategy.Default);
+
 
 //        final var previewImages = avDetail.getPreviewImages();//javbus方式获取预览图, 有水印, 换为netflav方式获取
         if (flag) {

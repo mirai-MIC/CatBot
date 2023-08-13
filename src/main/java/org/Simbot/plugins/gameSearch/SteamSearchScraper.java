@@ -110,7 +110,7 @@ public class SteamSearchScraper {
     @SneakyThrows
     public static Messages searchConsoleGame(final BlackBoxSearchEntity entity) {
         final MessagesBuilder builder = new MessagesBuilder();
-        final ByteArrayInputStream stream = AsyncHttpClientUtil.downloadImage(entity.getImage());
+        final ByteArrayInputStream stream = AsyncHttpClientUtil.downloadImage(entity.getImage(), false);
         builder.image(Resource.of(stream))
                 .text("游戏名：" + entity.getName() + "\n")
                 .text("英文名：" + entity.getNameEn() + "\n")

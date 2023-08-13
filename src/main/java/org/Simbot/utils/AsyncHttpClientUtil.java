@@ -1,6 +1,7 @@
 package org.Simbot.utils;
 
 import cn.hutool.core.lang.Pair;
+import cn.hutool.core.util.StrUtil;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.kqueue.KQueueEventLoopGroup;
@@ -83,6 +84,21 @@ public class AsyncHttpClientUtil {
 
     @SneakyThrows
     public static ByteArrayInputStream downloadImage(final String imgUrl) {
+        return downloadImage(imgUrl, true);
+    }
+
+    /**
+     * 下载图片, 可选是否随机修改图片像素点
+     *
+     * @param imgUrl 图片地址
+     * @param change 是否随机修改图片像素点
+     * @return 图片流
+     */
+    @SneakyThrows
+    public static ByteArrayInputStream downloadImage(final String imgUrl, final boolean change) {
+        if (StrUtil.isBlank(imgUrl)) {
+            return null;
+        }
         final CompletableFuture<ByteArrayInputStream> png =
                 client.prepareGet(imgUrl).execute()
                         .toCompletableFuture()
@@ -99,11 +115,14 @@ public class AsyncHttpClientUtil {
                             // 获取图像的宽度和高度
                             final int width = image.getWidth();
                             final int height = image.getHeight();
-                            // 随机生成一个像素点的位置
-                            final ThreadLocalRandom random = ThreadLocalRandom.current();
-                            final int x = random.nextInt(width);
-                            final int y = random.nextInt(height);
-                            image.setRGB(x, y, Color.RED.getRGB());
+
+                            if (change) {
+                                // 随机生成一个像素点的位置
+                                final ThreadLocalRandom random = ThreadLocalRandom.current();
+                                final int x = random.nextInt(width);
+                                final int y = random.nextInt(height);
+                                image.setRGB(x, y, Color.RED.getRGB());
+                            }
 
                             // 写回 ByteArrayOutputStream
                             try (ByteArrayOutputStream modifiedOut = new ByteArrayOutputStream(width * height * 4)) {

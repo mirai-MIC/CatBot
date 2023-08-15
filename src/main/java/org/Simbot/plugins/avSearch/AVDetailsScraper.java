@@ -33,7 +33,12 @@ public class AVDetailsScraper {
             return null;
         }
         final String url = BASE_URL + avNumber;
-        final Document doc = Jsoup.connect(url).get();
+        final Document doc;
+        try {
+            doc = Jsoup.connect(url).get();
+        } catch (final Exception e) {
+            return null;
+        }
         if (doc.select("h3").isEmpty()) {
             return null;
         }

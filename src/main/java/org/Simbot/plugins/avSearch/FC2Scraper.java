@@ -14,7 +14,6 @@ import org.Simbot.plugins.avSearch.entity.FC2SearchEntity;
 import org.Simbot.utils.AsyncHttpClientUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.ByteArrayInputStream;
@@ -49,9 +48,6 @@ public class FC2Scraper {
     private static List<ByteArrayInputStream> getFC2ImgById(final String id) {
         final Document document = Jsoup.connect(FC2_SEARCH_URL + id).get();
         final Elements imageLinks = document.select("ul.items_article_SampleImagesArea > li > a");
-        for (final Element link : imageLinks) {
-            final String imageUrl = link.attr("href");
-        }
         return imageLinks.parallelStream()
                 .map(link -> link.attr("href"))
                 .filter(StrUtil::isNotBlank)
@@ -66,14 +62,17 @@ public class FC2Scraper {
         }
         //用另外的线程去获取图片
         final var listFuture = IOThreadPool.submit(() -> getFC2ImgById(entity.getId()));
+        final var coverUrlTask = IOThreadPool.submit(() -> AsyncHttpClientUtil.downloadImage(entity.getCoverUrl()));
         final MessagesBuilder builder = new MessagesBuilder();
         final StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("标题：").append(entity.getTitle()).append("\n")
                 .append("番号：").append(entity.getNumber()).append("\n")
                 .append("分数：").append(entity.getScore()).append("\n")
                 .append("发行日期：").append(DateUtil.parseDate(entity.getReleaseDate())).append("\n")
-                .append("预览图：").append("\n");
+                .append("封面：").append("\n");
         builder.text(stringBuilder.toString());
+        builder.image(Resource.of(coverUrlTask.get(15, TimeUnit.SECONDS)));
+        builder.append("预览图：").append("\n");
         final List<ByteArrayInputStream> list = listFuture.get(15, TimeUnit.SECONDS);
         list.parallelStream()
                 .forEach(inputStream -> {

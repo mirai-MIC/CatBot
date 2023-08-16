@@ -118,6 +118,7 @@ public class SteamSearchScraper {
                 .text("游戏分数：" + entity.getScore() + "\n")
         ;
         return builder.build();
+    }
 
     }
 }

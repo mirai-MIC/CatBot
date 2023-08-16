@@ -32,6 +32,11 @@ public class GameInfo {
 
     private int supportChinese;
 
+    private List<GameScreenshot> screenshots;
+
+    //游戏评价总结
+    private String gameReviewSummary;
+
     private List<GameOnlineData> gameOnlineData;
 }
 

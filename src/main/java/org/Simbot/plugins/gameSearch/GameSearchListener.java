@@ -13,6 +13,7 @@ import love.forte.simbot.message.Messages;
 import love.forte.simbot.message.MessagesBuilder;
 import love.forte.simbot.resources.Resource;
 import net.mamoe.mirai.message.data.ForwardMessage;
+import org.Simbot.config.threadpool.IOThreadPool;
 import org.Simbot.plugins.gameSearch.entity.*;
 import org.Simbot.utils.AsyncHttpClientUtil;
 import org.Simbot.utils.SendMsgUtil;
@@ -23,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author ：ycvk
@@ -46,23 +48,30 @@ public class GameSearchListener {
             SendMsgUtil.sendReplyGroupMsg(event, "未找到相关游戏");
             return;
         }
-        final ByteArrayInputStream stream = AsyncHttpClientUtil.downloadImage(searchEntity.getImage(), false);
+        //获取游戏图片
+        final var stream = IOThreadPool.submit(() -> AsyncHttpClientUtil.downloadImage(searchEntity.getImage(), false));
 
         //构建转发消息链
         final var chain = new MiraiForwardMessageBuilder(ForwardMessage.DisplayStrategy.Default);
 
         final int appId = searchEntity.getSteamAppid();
+        //如果是主机游戏，直接返回
         if ("console".equals(searchEntity.getGameType())) {
             final Messages messages = SteamSearchScraper.searchConsoleGame(searchEntity);
             chain.add(event.getBot(), messages);
             event.getSource().sendAsync(chain.build());
             return;
         }
+        //获取游戏信息
         final GameInfo gameInfo = SteamSearchScraper.searchByGameId(appId);
-        final String introduction = SteamSearchScraper.searchIntroductionById(appId);
+        //获取游戏简介
+        final var introduction = IOThreadPool.submit(() -> SteamSearchScraper.searchIntroductionById(appId));
         final MessagesBuilder builder = new MessagesBuilder();
+        //获取游戏价格
         final GamePrice price = gameInfo.getPrice();
+        //获取游戏dlc列表
         final List<GameDlc> dlcs = gameInfo.getDlcs();
+        //获取游戏在线数据
         final List<GameOnlineData> onlineData = gameInfo.getGameOnlineData();
         final StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("游戏名称：").append(gameInfo.getName()).append("\n")
@@ -70,13 +79,12 @@ public class GameSearchListener {
                 .append("游戏类型：").append(gameInfo.getGenres().stream().reduce((a, b) -> a + " " + b).orElse("")).append("\n")
                 .append("游戏评分：").append(Optional.ofNullable(searchEntity.getScore()).orElse(searchEntity.getScoreDesc())).append("\n")
                 .append(gameInfo.getPositiveDesc()).append("\n")//好评率
+                .append("steam整体评价：").append(gameInfo.getGameReviewSummary()).append("\n")
+                .append("是否支持中文：").append(gameInfo.getSupportChinese() == 1 ? "是" : "否").append("\n")
         ;
-
-        stringBuilder.append("是否支持中文：").append(gameInfo.getSupportChinese() == 1 ? "是" : "否").append("\n");
-
         Optional.ofNullable(gameInfo.getNameEn()).ifPresent(nameEn -> stringBuilder.append("英文名称：").append(nameEn).append("\n"));
 
-        builder.image(Resource.of(stream));
+        builder.image(Resource.of(stream.get(5, TimeUnit.SECONDS)));
         builder.text(stringBuilder.toString());
         chain.add(event.getBot(), builder.build());
 
@@ -85,21 +93,36 @@ public class GameSearchListener {
             final MessagesBuilder priceBuilder = buildPriceBuilder(price);
             chain.add(event.getBot(), priceBuilder.build());
         }
+        //如果有在线数据，显示在线数据
         if (CollUtil.isNotEmpty(onlineData)) {
             final MessagesBuilder onlineBuilder = buildOnlineList(onlineData);
             chain.add(event.getBot(), onlineBuilder.build());
         }
+        //如果有dlc，显示dlc列表
         if (CollUtil.isNotEmpty(dlcs)) {
             chain.add(event.getBot(), "↘ ↓ ↓DLC列表↓ ↓ ↙\n");
             final List<MessagesBuilder> dlcList = buildDlcList(dlcs);
             dlcList.parallelStream().forEach(dlc -> chain.add(event.getBot(), dlc.build()));
         }
-        chain.add(event.getBot(), "游戏简介：\n" + introduction);
+        //如果有截图，显示截图
+        if (CollUtil.isNotEmpty(gameInfo.getScreenshots())) {
+            final MessagesBuilder gameScreenshotList = buildGameScreenshotList(gameInfo.getScreenshots());
+            if (gameScreenshotList != null) {
+                chain.add(event.getBot(), "↘ ↓ ↓游戏截图↓ ↓ ↙\n");
+                chain.add(event.getBot(), gameScreenshotList.build());
+            }
+        }
+        chain.add(event.getBot(), "游戏简介：\n" + introduction.get(5, TimeUnit.SECONDS));
 
         event.getSource().sendAsync(chain.build());
     }
 
-
+    /**
+     * 构建在线数据消息
+     *
+     * @param onlineData 在线数据
+     * @return 消息
+     */
     public MessagesBuilder buildOnlineList(final List<GameOnlineData> onlineData) {
         return onlineData.parallelStream()
                 .map(this::buildOnlineBuilder)
@@ -109,6 +132,12 @@ public class GameSearchListener {
                 }).orElse(null);
     }
 
+    /**
+     * 构建单个在线数据消息
+     *
+     * @param onlineData 在线数据
+     * @return 消息
+     */
     private MessagesBuilder buildOnlineBuilder(final GameOnlineData onlineData) {
         if (onlineData == null) {
             return null;
@@ -116,7 +145,7 @@ public class GameSearchListener {
         final StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(onlineData.getDesc()).append(" : ").append(onlineData.getValue()).append("\n");
         if (!"当前在线".equals(onlineData.getDesc())) {
-            stringBuilder.append("排名 : ").append(onlineData.getRank()).append("\n");
+            stringBuilder.append("排名 : ").append(onlineData.getRank()).append("\n\n");
         }
         final MessagesBuilder builder = new MessagesBuilder();
         builder.text(stringBuilder.toString());
@@ -186,6 +215,40 @@ public class GameSearchListener {
         if (priceBuilder != null) {
             builder.append(priceBuilder.build());
         }
+        return builder;
+    }
+
+    /**
+     * 构建游戏截图消息列表
+     *
+     * @param screenshots 游戏截图列表
+     * @return 消息列表
+     */
+    private MessagesBuilder buildGameScreenshotList(final List<GameScreenshot> screenshots) {
+        return screenshots.parallelStream()
+                .map(this::buildGameScreenshot)
+                .reduce((a, b) -> {
+                    a.append(b.build());
+                    return a;
+                }).orElse(null);
+    }
+
+    /**
+     * 构建游戏截图消息
+     *
+     * @param gameScreenshot 游戏截图
+     * @return 消息
+     */
+    private MessagesBuilder buildGameScreenshot(final GameScreenshot gameScreenshot) {
+        final MessagesBuilder builder = new MessagesBuilder();
+        final ByteArrayInputStream stream = AsyncHttpClientUtil.downloadImage(gameScreenshot.getThumbnail(), false, true, 0.6f);
+        Optional.ofNullable(stream).ifPresent(s -> {
+            try {
+                builder.image(Resource.of(stream)).text("\n");
+            } catch (final IOException e) {
+                log.error("此游戏没有图片或图片下载失败", e);
+            }
+        });
         return builder;
     }
 }

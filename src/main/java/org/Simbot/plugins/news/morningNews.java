@@ -6,13 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import love.forte.simboot.annotation.Filter;
 import love.forte.simboot.annotation.Listener;
 import love.forte.simbot.event.GroupMessageEvent;
-import org.Simbot.utils.OK3HttpClient;
+import org.Simbot.utils.AsyncHttpClientUtil;
 import org.Simbot.utils.SendMsgUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @BelongsProject: simbot
@@ -37,14 +34,11 @@ public class morningNews {
     @Filter(value = "/每日早报")
     @Filter(value = "/早报")
     public void getNews(final GroupMessageEvent event) {
-        final Map<String, Object> map = new HashMap<>();
-        map.put("token", token);
-        OK3HttpClient.httpGetAsync(newsImage, map, null, result -> {
-            final JSONObject obj = JSONUtil.parseObj(result);
-            final String str = obj.getJSONObject("data").getStr("image");
-            log.info("result:{}", str);
-            SendMsgUtil.sendSimpleGroupImage(event.getGroup(), event.getAuthor().getId(), "每日早报~", str);
-        }, error -> log.error("error:{}", error.getMessage()));
+        final var responsePair = AsyncHttpClientUtil.doGet(newsImage, builder -> builder.addQueryParam("token", token));
+        final String body = responsePair.getValue().getResponseBody();
+        final JSONObject obj = JSONUtil.parseObj(body);
+        final String str = obj.getJSONObject("data").getStr("image");
+        log.info("result:{}", str);
+        SendMsgUtil.sendSimpleGroupImage(event.getGroup(), event.getAuthor().getId(), "每日早报~", str);
     }
-
 }

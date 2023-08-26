@@ -10,9 +10,13 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.Simbot.utils.AsyncHttpClientUtil;
 import org.Simbot.utils.CaffeineUtil;
+import org.redisson.api.RLock;
+import org.redisson.api.RMapCache;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,6 +32,9 @@ public class NetflavDetailsScraper {
     @Resource
     private CaffeineUtil caffeineUtil;
 
+    @Resource
+    private RedissonClient redissonClient;
+
     final String searchUrl = "https://netflav.com/api98/video/advanceSearchVideo?type=title&page=1&keyword=";
     final String videoUrl = "https://netflav.com/api98/video/v2/retrieveVideo/";
 
@@ -42,34 +49,52 @@ public class NetflavDetailsScraper {
      * @return 视频详情
      */
     public JSONObject getVideoResponse(final String avNum) {
-        //先从缓存中获取
-        final Optional<JSONObject> cache = caffeineUtil.get(avNum, JSONObject.class);
-        if (cache.isPresent()) {
-            log.info("从缓存中获取 {} 的详情", avNum);
-            return cache.get();
-        }
-        log.info("从网络中获取 {} 的详情", avNum);
-        //发送请求
-        final var responsePair = AsyncHttpClientUtil.doGet(searchUrl + avNum);
-        final JSONObject obj = JSONUtil.parseObj(responsePair.getValue().getResponseBody());
-        final JSONObject jsonObject = obj.getJSONObject("result");
-        if (jsonObject.getInt("total") <= 0) {
-            log.info("没有找到相关信息");
+        final JSONObject entries;
+        final RLock lock = redissonClient.getLock("lock::" + avNum);
+        try {
+            lock.lock();
+            //先从缓存中获取
+            final Optional<JSONObject> cache = caffeineUtil.get(avNum, JSONObject.class);
+            if (cache.isPresent()) {
+                log.info("从缓存中获取 {} 的详情", avNum);
+                return cache.get();
+            }
+            //从redis中获取
+            final RMapCache<String, JSONObject> mapCache = redissonClient.getMapCache("netflav");
+            final var redisCache = mapCache.get(avNum);
+            if (redisCache != null) {
+                log.info("从redis中获取 {} 的详情", avNum);
+                return redisCache;
+            }
+            log.info("从网络中获取 {} 的详情", avNum);
+            //发送请求
+            final var responsePair = AsyncHttpClientUtil.doGet(searchUrl + avNum);
+            final JSONObject obj = JSONUtil.parseObj(responsePair.getValue().getResponseBody());
+            final JSONObject jsonObject = obj.getJSONObject("result");
+            if (jsonObject.getInt("total") <= 0) {
+                log.info("没有找到相关信息");
+                return null;
+            }
+            //获取搜索结果
+            final JSONArray docs = jsonObject.getJSONArray("docs");
+            //获取第一个结果,即最匹配的结果
+            final JSONObject videoEntity = docs.getJSONObject(0);
+            //获取视频id
+            final String videoId = videoEntity.getStr("videoId");
+            //发送请求
+            final var videoResp = AsyncHttpClientUtil.doGet(videoUrl + videoId);
+            //获取返回结果
+            entries = JSONUtil.parseObj(videoResp.getValue().getResponseBody());
+            //缓存
+            mapCache.fastPutAsync(avNum, entries, 1, TimeUnit.HOURS);
+            caffeineUtil.put(avNum, entries, 1, TimeUnit.HOURS);
+            return entries;
+        } catch (final Exception e) {
+            log.error("获取视频详情失败", e);
             return null;
+        } finally {
+            lock.unlock();
         }
-        //获取搜索结果
-        final JSONArray docs = jsonObject.getJSONArray("docs");
-        //获取第一个结果,即最匹配的结果
-        final JSONObject videoEntity = docs.getJSONObject(0);
-        //获取视频id
-        final String videoId = videoEntity.getStr("videoId");
-        //发送请求
-        final var videoResp = AsyncHttpClientUtil.doGet(videoUrl + videoId);
-        //获取返回结果
-        final JSONObject entries = JSONUtil.parseObj(videoResp.getValue().getResponseBody());
-        //缓存
-        caffeineUtil.put(avNum, entries);
-        return entries;
     }
 
     /**
@@ -89,7 +114,6 @@ public class NetflavDetailsScraper {
                 .parallel()
                 .filter(s -> s.contains("streamtape") || s.contains("vidoza") || s.contains("streamsb") || s.contains("embedgram"))
                 .toList();
-
     }
 
     /**

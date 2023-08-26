@@ -1,10 +1,9 @@
-package org.Simbot.config;
+package org.Simbot.config.caffeine;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Expiry;
 import jakarta.annotation.Nonnull;
-import org.Simbot.config.caffeine.CacheDataWrapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

@@ -63,7 +63,7 @@ public class AVDetailsScraper {
                 null,
                 JSONUtil.toJsonStr(categories),
                 DateUtil.parseDate(releaseDate).toTimestamp(),
-                previewImages);
+                previewImages, null);
     }
 
     private String getTitle(final Document doc) {

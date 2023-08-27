@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -18,6 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @TableName(value = "av_detail")
 @NoArgsConstructor
+@Accessors(chain = true)
 public class AvDetail implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
@@ -31,7 +33,7 @@ public class AvDetail implements Serializable {
     private String avNum;
 
     /**
-     * AV番号
+     * AV标题
      */
     @TableField(value = "title")
     @Size(max = 1000, message = "标题最大长度要小于 1000")
@@ -107,5 +109,8 @@ public class AvDetail implements Serializable {
 
     @TableField(exist = false)
     private transient List<String> previewImages;
+
+    @TableField(exist = false)
+    private transient String mainUrl;
 
 }

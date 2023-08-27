@@ -2,6 +2,7 @@ package org.Simbot.plugins.avSearch;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import net.mamoe.mirai.message.data.ForwardMessage;
 import org.Simbot.mybatisplus.mapper.AvDetailMapper;
 import org.Simbot.mybatisplus.mapper.AvPreviewMapper;
 import org.Simbot.plugins.avSearch.entity.AvDetail;
+import org.Simbot.plugins.avSearch.entity.CustomDetailEntity;
 import org.Simbot.plugins.avSearch.entity.FC2SearchEntity;
 import org.Simbot.utils.AsyncHttpClientUtil;
 import org.Simbot.utils.SendMsgUtil;
@@ -100,7 +102,8 @@ public class AVListener {
         //撤回消息
         SendMsgUtil.withdrawMessage(messageReceipt, 15);
         if (avDetail == null) {
-            SendMsgUtil.sendSimpleGroupMsg(event, "没有找到相关信息");
+//            SendMsgUtil.sendSimpleGroupMsg(event, "没有找到相关信息");
+            getAvDetailByArzon(next, event);
             return;
         }
         //下载封面
@@ -211,5 +214,52 @@ public class AVListener {
         }
         //撤回消息
 //        SendMsgUtil.withdrawMessage(sendAsync.get(30, TimeUnit.SECONDS), 55);
+    }
+
+    @SneakyThrows
+    private void getAvDetailByArzon(final String avNum, final GroupMessageEvent event) {
+        final List<CustomDetailEntity> entities = ArzonScraper.searchByAvNum(avNum);
+        if (CollUtil.isEmpty(entities)) {
+            SendMsgUtil.sendSimpleGroupMsg(event, "没有找到相关信息");
+            return;
+        }
+        final CustomDetailEntity detail = entities.get(0);
+        final Map<String, String> headers = ArzonScraper.getHeaders(detail.getHomepage());
+        final var document = ArzonScraper.getDocument(detail);
+        //获取封面
+        final var coverStream = CompletableFuture.supplyAsync(() -> AsyncHttpClientUtil.downloadImage(detail.getCoverUrl(), headers));
+        //获取详情
+        final String desc = ArzonScraper.getDesc(document);
+        //获取预览图
+        final List<String> previewImg = ArzonScraper.getPreviewImg(document);
+
+        final var stringBuilder = new StringBuilder()
+                .append("番号 : ").append(detail.getNumber()).append("\n")
+                .append("标题 : ").append(detail.getTitle()).append("\n")
+                .append("演员 : ").append(detail.getActors().stream().reduce((a, b) -> a + " " + b)).append("\n")
+                .append("简介 : ").append(desc).append("\n")
+                .append("发行日期 : ").append(DateUtil.parse(detail.getReleaseDate()).toDateStr()).append("\n")
+                .append("封面 : " + "\n");
+        final var builder = new MessagesBuilder();
+        builder.text(stringBuilder.toString())
+                .image(Resource.of(coverStream.get(15, TimeUnit.SECONDS)));
+        if (CollUtil.isNotEmpty(previewImg)) {
+            builder.text("预览图 :\n");
+            previewImg.subList(0, Math.min(previewImg.size(), 8))//最多下载8张预览图
+                    .parallelStream()
+                    .filter(StrUtil::isNotBlank)
+                    .map(imgUrl -> AsyncHttpClientUtil.downloadImage(imgUrl, headers))
+                    .forEach(inputStream -> {
+                        try {
+                            builder.image(Resource.of(inputStream));
+                        } catch (final IOException e) {
+                            builder.text("下载预览图失败\n");
+                            log.error("下载预览图失败", e);
+                        }
+                    });
+        }
+        final var chain = new MiraiForwardMessageBuilder(ForwardMessage.DisplayStrategy.Default);
+        chain.add(event.getBot(), builder.build());
+        event.getSource().sendAsync(chain.build());
     }
 }

@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -87,6 +88,21 @@ public class AsyncHttpClientUtil {
         return downloadImage(imgUrl, true);
     }
 
+    @SneakyThrows
+    public static ByteArrayInputStream downloadImage(final String imgUrl, final Map<String, String> headers) {
+        return downloadImage(imgUrl, true, false, 0, headers);
+    }
+
+    @SneakyThrows
+    public static ByteArrayInputStream downloadImage(final String imgUrl, final boolean change) {
+        return downloadImage(imgUrl, change, false, 0);
+    }
+
+    public static ByteArrayInputStream downloadImage(final String imgUrl, final boolean change, final boolean compress, final float scale) {
+        return downloadImage(imgUrl, change, compress, scale, null);
+    }
+
+
     /**
      * 下载图片, 可选是否随机修改图片像素点
      *
@@ -95,12 +111,16 @@ public class AsyncHttpClientUtil {
      * @return 图片流
      */
     @SneakyThrows
-    public static ByteArrayInputStream downloadImage(final String imgUrl, final boolean change) {
+    public static ByteArrayInputStream downloadImage(final String imgUrl, final boolean change, final boolean compress, final float scale, final Map<String, String> headers) {
         if (StrUtil.isBlank(imgUrl)) {
             return null;
         }
+        final BoundRequestBuilder requestBuilder = client.prepareGet(imgUrl);
+        if (headers != null) {
+            headers.forEach(requestBuilder::addHeader);
+        }
         final CompletableFuture<ByteArrayInputStream> png =
-                client.prepareGet(imgUrl).execute()
+                requestBuilder.execute()
                         .toCompletableFuture()
                         .thenApplyAsync(resp -> {
                             final InputStream in = resp.getResponseBodyAsStream();
@@ -126,7 +146,12 @@ public class AsyncHttpClientUtil {
 
                             // 写回 ByteArrayOutputStream
                             try (ByteArrayOutputStream modifiedOut = new ByteArrayOutputStream(width * height * 4)) {
+//                                if (compress) {
+//                                    final var scaledImg = image.getScaledInstance((int) (width * scale), (int) (height * scale), Image.SCALE_SMOOTH);
+//                                    ImageIO.write((BufferedImage) scaledImg, "png", modifiedOut);
+//                                } else {
                                 ImageIO.write(image, "png", modifiedOut);
+//                                }
                                 return new ByteArrayInputStream(modifiedOut.toByteArray());
                             } catch (final IOException e) {
                                 log.error("写入 imgUrl:{} 失败", imgUrl, e);

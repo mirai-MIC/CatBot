@@ -164,14 +164,6 @@ public class NetflavDetailsScraper {
         return new ArrayList<>(Arrays.asList(split).subList(start, end));
     }
 
-//    public static void main(final String[] args) {
-//        final NetflavDetailsScraper netflavDetailsScraper = new NetflavDetailsScraper();
-//        final List<String> previewImages = netflavDetailsScraper.getPreviewImages("MIDV-373");
-//        System.out.println(previewImages);
-//        final String previewHp = netflavDetailsScraper.getPreviewHp("MIDV-373");
-//        System.out.println(previewHp);
-//    }
-
     /**
      * 获取磁力链接
      *
@@ -259,6 +251,12 @@ public class NetflavDetailsScraper {
     }
 
 
+    /**
+     * 提取字符串中的数字 例如: "123abc456" -> "123456"
+     *
+     * @param input 输入字符串
+     * @return 提取后的字符串
+     */
     public String extractNumber(final String input) {
         final Pattern pattern = Pattern.compile("\\d+");
         final Matcher matcher = pattern.matcher(input);

@@ -23,7 +23,7 @@ import java.util.Map;
  */
 @Slf4j
 public class ArzonScraper {
-    private static final String ARZON_SEARCH_URL = "http://tuic.ycvk.app:12345/v1/movies/search?provider=ARZON&q=";
+    private static final String ARZON_SEARCH_URL = "https://jav.mcjoker.xyz/v1/movies/search?provider=ARZON&q=";
     private static final String ARZON_URL = "https://www.arzon.jp/";
 
     public static List<CustomDetailEntity> searchByAvNum(final String avNum) {
@@ -66,19 +66,23 @@ public class ArzonScraper {
 
     public static List<String> getPreviewImg(final Document document) {
         //获取包含所有需要信息的<div>元素
-        final Element divElement = document.selectFirst("div.detail_img");
+//        final Element divElement = document.selectFirst("div.detail_img");
         //获取所有包含图片信息的<a>元素列表
-        final Elements aElements = divElement.select("a[data-lightbox=items]");
+//        final Elements aElements = divElement.select("a[data-lightbox=items]");
         //遍历<a>元素列表以提取图片和超链接
-        final List<String> imgSrcs = aElements.stream()
-                .parallel()
-                .map(aElement -> aElement.selectFirst("img").attr("src"))
-                .map(imgSrc -> imgSrc.replaceFirst("m_", ""))//去掉m_前缀 使其变成高清图片
+//        final List<String> imgSrcs = aElements.stream()
+//                .parallel()
+//                .map(aElement -> aElement.selectFirst("img").attr("src"))
+//                .map(imgSrc -> imgSrc.replaceFirst("m_", ""))//去掉m_前缀 使其变成高清图片
+//                .map(imgSrc -> "https:" + imgSrc)
+//                .toList();
+        final Elements imgElements = document.select("div.sample_img img"); // 选择div的class为sample_img下的所有img标签
+        final List<String> imgSrcs = imgElements.stream()
+                .map(imgElement -> imgElement.attr("src"))
                 .map(imgSrc -> "https:" + imgSrc)
                 .toList();
 
         log.info("imgSrcs: {}", imgSrcs);
         return imgSrcs;
     }
-
 }

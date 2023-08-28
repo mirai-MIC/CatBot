@@ -102,7 +102,6 @@ public class AsyncHttpClientUtil {
         return downloadImage(imgUrl, change, compress, scale, null);
     }
 
-
     /**
      * 下载图片, 可选是否随机修改图片像素点
      *
@@ -125,7 +124,7 @@ public class AsyncHttpClientUtil {
                         .thenApplyAsync(resp -> {
                             final InputStream in = resp.getResponseBodyAsStream();
                             // 直接从 InputStream 到 BufferedImage
-                            final BufferedImage image;
+                            BufferedImage image;
                             try {
                                 image = ImageIO.read(in);
                             } catch (final IOException e) {
@@ -135,6 +134,16 @@ public class AsyncHttpClientUtil {
                             // 获取图像的宽度和高度
                             final int width = image.getWidth();
                             final int height = image.getHeight();
+
+                            if (compress) {
+                                final int newWidth = (int) (width * scale);
+                                final int newHeight = (int) (height * scale);
+                                // 使用 java.awt.Image 对象的 getScaledInstance() 方法进行图片缩放
+                                final Image scaledImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+                                final BufferedImage bufferedScaledImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+                                bufferedScaledImage.getGraphics().drawImage(scaledImage, 0, 0, null);
+                                image = bufferedScaledImage;
+                            }
 
                             if (change) {
                                 // 随机生成一个像素点的位置
@@ -146,12 +155,7 @@ public class AsyncHttpClientUtil {
 
                             // 写回 ByteArrayOutputStream
                             try (ByteArrayOutputStream modifiedOut = new ByteArrayOutputStream(width * height * 4)) {
-//                                if (compress) {
-//                                    final var scaledImg = image.getScaledInstance((int) (width * scale), (int) (height * scale), Image.SCALE_SMOOTH);
-//                                    ImageIO.write((BufferedImage) scaledImg, "png", modifiedOut);
-//                                } else {
                                 ImageIO.write(image, "png", modifiedOut);
-//                                }
                                 return new ByteArrayInputStream(modifiedOut.toByteArray());
                             } catch (final IOException e) {
                                 log.error("写入 imgUrl:{} 失败", imgUrl, e);

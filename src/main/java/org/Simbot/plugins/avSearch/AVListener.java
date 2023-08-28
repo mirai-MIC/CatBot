@@ -223,7 +223,11 @@ public class AVListener {
             SendMsgUtil.sendSimpleGroupMsg(event, "没有找到相关信息");
             return;
         }
-        final CustomDetailEntity detail = entities.get(0);
+        final CustomDetailEntity detail = entities.stream().filter(entity -> entity.getNumber().equalsIgnoreCase(avNum)).findFirst().orElse(null);
+        if (BeanUtil.isEmpty(detail)) {
+            SendMsgUtil.sendSimpleGroupMsg(event, "没有找到相关信息");
+            return;
+        }
         final Map<String, String> headers = ArzonScraper.getHeaders(detail.getHomepage());
         final var document = ArzonScraper.getDocument(detail);
         //获取封面

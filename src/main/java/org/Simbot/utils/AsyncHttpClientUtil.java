@@ -122,8 +122,11 @@ public class AsyncHttpClientUtil {
                 requestBuilder.execute()
                         .toCompletableFuture()
                         .thenApplyAsync(resp -> {
-                            final InputStream in = resp.getResponseBodyAsStream();
-                            // 直接从 InputStream 到 BufferedImage
+                            final byte[] imageBytes = resp.getResponseBodyAsBytes();
+                            // 以KB为单位计算大小
+                            final int sizeInKB = imageBytes.length / 1024;
+                            final InputStream in = new ByteArrayInputStream(imageBytes);
+
                             BufferedImage image;
                             try {
                                 image = ImageIO.read(in);
@@ -135,7 +138,7 @@ public class AsyncHttpClientUtil {
                             final int width = image.getWidth();
                             final int height = image.getHeight();
 
-                            if (compress) {
+                            if (compress && sizeInKB >= 500) {
                                 final int newWidth = (int) (width * scale);
                                 final int newHeight = (int) (height * scale);
                                 // 使用 java.awt.Image 对象的 getScaledInstance() 方法进行图片缩放
@@ -166,6 +169,36 @@ public class AsyncHttpClientUtil {
                             return null;
                         });
         return png.get(20, TimeUnit.SECONDS);
+    }
+
+    /**
+     * 获取图片类型
+     *
+     * @param contentType header中的Content-Type
+     * @return 图片类型
+     */
+    private static String getImageType(final String contentType) {
+        //可以通过response header中的Content-Type获取图片类型
+        if (contentType == null) {
+            return "png"; // 返回默认类型
+        }
+
+        // 将contentType转为小写，以便能与标准MIME类型匹配
+        final String lowerContentType = contentType.toLowerCase();
+        return switch (lowerContentType) {
+            case "image/jpeg", "image/jpg" -> "jpg";
+            case "image/png" -> "png";
+            case "image/gif" -> "gif";
+            case "image/bmp" -> "bmp";
+            case "image/webp" -> "webp";
+            case "image/tiff" -> "tiff";
+            case "image/svg+xml" -> "svg";
+            case "image/heif" -> "heif";
+            case "image/ico", "image/x-icon" -> "ico";
+            default ->
+                // 如果MIME类型不在上面的列表中，返回默认的 "png"
+                    "png";
+        };
     }
 
     @SneakyThrows

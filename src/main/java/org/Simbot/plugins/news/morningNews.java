@@ -33,6 +33,7 @@ public class morningNews {
     @Listener
     @Filter(value = "/每日早报")
     @Filter(value = "/早报")
+    @Filter(value = "/zb")
     public void getNews(final GroupMessageEvent event) {
         final var responsePair = AsyncHttpClientUtil.doGet(newsImage, builder -> builder.addQueryParam("token", token));
         final String body = responsePair.getValue().getResponseBody();

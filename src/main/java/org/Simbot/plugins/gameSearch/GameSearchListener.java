@@ -49,7 +49,7 @@ public class GameSearchListener {
             return;
         }
         //获取游戏图片
-        final var stream = IOThreadPool.submit(() -> AsyncHttpClientUtil.downloadImage(searchEntity.getImage(), false));
+        final var stream = IOThreadPool.submit(() -> AsyncHttpClientUtil.downloadImage(searchEntity.getImage(), false, true, 0.5f));
 
         //构建转发消息链
         final var chain = new MiraiForwardMessageBuilder(ForwardMessage.DisplayStrategy.Default);
@@ -114,7 +114,7 @@ public class GameSearchListener {
         }
         chain.add(event.getBot(), "游戏简介：\n" + introduction.get(5, TimeUnit.SECONDS));
 
-        event.getSource().sendAsync(chain.build());
+        event.getSource().sendBlocking(chain.build());
     }
 
     /**
@@ -200,7 +200,7 @@ public class GameSearchListener {
     @SneakyThrows
     private MessagesBuilder buildDlcBuilder(final GameDlc dlc) {
         final MessagesBuilder builder = new MessagesBuilder();
-        final ByteArrayInputStream stream = AsyncHttpClientUtil.downloadImage(dlc.getImage(), false);
+        final ByteArrayInputStream stream = AsyncHttpClientUtil.downloadImage(dlc.getImage(), false, true, 0.5f);
         final GamePrice price = dlc.getPrice();
         final MessagesBuilder priceBuilder = buildPriceBuilder(price);
         Optional.ofNullable(stream).ifPresent(s -> {
@@ -241,7 +241,7 @@ public class GameSearchListener {
      */
     private MessagesBuilder buildGameScreenshot(final GameScreenshot gameScreenshot) {
         final MessagesBuilder builder = new MessagesBuilder();
-        final ByteArrayInputStream stream = AsyncHttpClientUtil.downloadImage(gameScreenshot.getThumbnail(), false, true, 0.6f);
+        final ByteArrayInputStream stream = AsyncHttpClientUtil.downloadImage(gameScreenshot.getThumbnail(), false, true, 0.5f);
         Optional.ofNullable(stream).ifPresent(s -> {
             try {
                 builder.image(Resource.of(stream)).text("\n");

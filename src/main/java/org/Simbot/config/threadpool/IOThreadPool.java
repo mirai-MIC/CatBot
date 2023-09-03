@@ -15,9 +15,9 @@ public class IOThreadPool {
     private static final ThreadPoolExecutor executor;
 
     static {
-        final int corePoolSize = Runtime.getRuntime().availableProcessors() * 2; // 使用CPU核心数作为默认值
+        final int corePoolSize = Runtime.getRuntime().availableProcessors() * 2;
 
-        final ThreadFactory customThreadFactory = new CustomThreadFactory("ioIntensive");
+        final ThreadFactory customThreadFactory = new CustomThreadFactory("ioIntensive", Thread.NORM_PRIORITY);
 
         executor = new ThreadPoolExecutor(
                 corePoolSize,
@@ -32,7 +32,6 @@ public class IOThreadPool {
         Runtime.getRuntime().addShutdownHook(new Thread(IOThreadPool::shutdown));
     }
 
-    // 提交任务并根据任务类型调整线程池大小
     public static <T> Future<T> submit(final Callable<T> task) {
         return executor.submit(task);
     }

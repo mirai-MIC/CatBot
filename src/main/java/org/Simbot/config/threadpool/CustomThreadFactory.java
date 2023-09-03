@@ -14,14 +14,20 @@ public class CustomThreadFactory implements ThreadFactory {
     private final String namePrefix;
     private static final AtomicInteger poolNumber = new AtomicInteger(1);
     private final AtomicInteger threadNumber = new AtomicInteger(1);
+    private final int threadPriority;
 
-    public CustomThreadFactory(final String name) {
+    public CustomThreadFactory(final String name, final int threadPriority) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null or empty");
+        }
         this.namePrefix = name + "-pool-" + poolNumber.getAndIncrement() + "-thread-";
+        this.threadPriority = threadPriority;
     }
 
     @Override
     public Thread newThread(final @NotNull Runnable r) {
-        return new Thread(r, namePrefix + threadNumber.getAndIncrement());
-        // 可以设置其他线程属性，如优先级等
+        final Thread thread = new Thread(r, namePrefix + threadNumber.getAndIncrement());
+        thread.setPriority(threadPriority);
+        return thread;
     }
 }

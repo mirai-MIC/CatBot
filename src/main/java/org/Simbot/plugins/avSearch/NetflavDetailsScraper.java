@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * @author ：ycvk
@@ -112,7 +113,8 @@ public class NetflavDetailsScraper {
         final String[] split = str.split("\\|");
         return Arrays.stream(split)
                 .parallel()
-                .filter(s -> s.contains("streamtape") || s.contains("vidoza") || s.contains("streamsb") || s.contains("embedgram"))
+                .filter(s -> Stream.of("streamtape", "vidoza", "streamsb", "embedgram")
+                        .anyMatch(s::contains))
                 .toList();
     }
 

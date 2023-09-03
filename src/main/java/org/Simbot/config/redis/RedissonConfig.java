@@ -20,36 +20,46 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RedissonConfig {
 
-    //获取操作系统名称
     private final String osName = System.getProperty("os.name").toLowerCase();
+
+    private enum OS {
+        MAC, LINUX, WINDOWS
+    }
+
+    private OS getOperatingSystem() {
+        if (osName.contains("mac")) {
+            return OS.MAC;
+        } else if (osName.contains("linux")) {
+            return OS.LINUX;
+        }
+        return OS.WINDOWS;
+    }
 
     @Bean
     public RedissonClient redissonClient() {
         final Config config = new Config();
-        config.useSingleServer()
-                .setAddress("redis://localhost:6379");
+        config.useSingleServer().setAddress("redis://localhost:6379");
 
         config.setCodec(new JsonJacksonCodec())
                 .setTransportMode(setTransportMode())
                 .setEventLoopGroup(setEventLoopGroup());
+
         return Redisson.create(config);
     }
 
     private TransportMode setTransportMode() {
-        if (osName.contains("mac")) {
-            return TransportMode.KQUEUE;//开启kqueue模式 适用于macOS
-        } else if (osName.contains("linux")) {
-            return TransportMode.EPOLL;//开启epoll模式 适用于linux
-        }
-        return TransportMode.NIO;//开启NIO模式 适用于windows
+        return switch (getOperatingSystem()) {
+            case MAC -> TransportMode.KQUEUE;
+            case LINUX -> TransportMode.EPOLL;
+            default -> TransportMode.NIO;
+        };
     }
 
     private EventLoopGroup setEventLoopGroup() {
-        if (osName.contains("mac")) {
-            return new KQueueEventLoopGroup();//开启kqueue模式 适用于macOS
-        } else if (osName.contains("linux")) {
-            return new EpollEventLoopGroup();//开启epoll模式 适用于linux
-        }
-        return new NioEventLoopGroup();//开启NIO模式 适用于windows
+        return switch (getOperatingSystem()) {
+            case MAC -> new KQueueEventLoopGroup();
+            case LINUX -> new EpollEventLoopGroup();
+            default -> new NioEventLoopGroup();
+        };
     }
 }

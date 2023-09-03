@@ -83,17 +83,14 @@ public class AsyncHttpClientUtil {
         return asyncHttpClient(buildClientConfig());
     }
 
-    @SneakyThrows
     public static ByteArrayInputStream downloadImage(final String imgUrl) {
         return downloadImage(imgUrl, true);
     }
 
-    @SneakyThrows
     public static ByteArrayInputStream downloadImage(final String imgUrl, final Map<String, String> headers) {
         return downloadImage(imgUrl, true, false, 0, headers);
     }
 
-    @SneakyThrows
     public static ByteArrayInputStream downloadImage(final String imgUrl, final boolean change) {
         return downloadImage(imgUrl, change, false, 0);
     }

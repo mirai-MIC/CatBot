@@ -18,6 +18,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,21 @@ public class HttpUtils {
      * 字节流数组大小（1MB）
      */
     private final static int BYTE_ARRAY_LENGTH = 1024 * 1024;
+
+    /**
+     * cleanURL方法接收一个包含参数的URL，返回一个没有参数的URL。
+     *
+     * @param dirtyURL 包含参数的原始URL。
+     * @return 不包含参数的新URL。
+     * @throws Exception 如果解析URL时出现问题。
+     */
+    public static String cleanURL(final String dirtyURL) throws Exception {
+        if (dirtyURL == null) {
+            return null;
+        }
+        final URL url = new URL(dirtyURL);
+        return url.getProtocol() + "://" + url.getHost() + url.getPath();
+    }
 
     /**
      * 执行get请求获取响应

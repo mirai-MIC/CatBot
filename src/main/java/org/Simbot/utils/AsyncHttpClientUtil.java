@@ -67,6 +67,7 @@ public class AsyncHttpClientUtil {
                 .setEventLoopGroup(eventLoopGroup)//根据当前系统设置eventLoopGroup
                 .setConnectTimeout(60 * 1000)//连接超时时间
                 .setReadTimeout(60 * 1000)//读取超时时间
+                .setHandshakeTimeout(30 * 1000)//握手超时时间
                 .setPooledConnectionIdleTimeout(30 * 1000)//连接池中连接的空闲时间
                 .setConnectionTtl(30 * 1000)//连接存活时间
                 .setMaxRequestRetry(3)//最大重试次数

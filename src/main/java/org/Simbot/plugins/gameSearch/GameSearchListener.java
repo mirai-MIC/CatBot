@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -59,7 +60,7 @@ public class GameSearchListener {
         if ("console".equals(searchEntity.getGameType())) {
             final Messages messages = SteamSearchScraper.searchConsoleGame(searchEntity);
             chain.add(event.getBot(), messages);
-            event.getSource().sendAsync(chain.build());
+            event.getSource().sendBlocking(chain.build());
             return;
         }
         //获取游戏信息
@@ -225,7 +226,10 @@ public class GameSearchListener {
      * @return 消息列表
      */
     private MessagesBuilder buildGameScreenshotList(final List<GameScreenshot> screenshots) {
-        return screenshots.parallelStream()
+        return Optional.ofNullable(screenshots)
+                .orElse(Collections.emptyList())
+                .subList(0, Math.min(screenshots.size(), 8))
+                .parallelStream()
                 .map(this::buildGameScreenshot)
                 .reduce((a, b) -> {
                     a.append(b.build());

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 /**
- * @author mirai
+ * @author ycvk
  * @version 1.0
  * @date 2023/09/05 22:47
  * @description 网易云音乐点歌
@@ -36,6 +36,7 @@ public class CloudMusic {
 
     @Listener
     @Filter(value = "/点歌 {{text}}", matchType = MatchType.REGEX_CONTAINS)
+    @Filter(value = "/music {{text}}", matchType = MatchType.REGEX_CONTAINS)
     public void sendMusic(final GroupMessageEvent event, @FilterValue("text") final String text) {
 
         final var responsePair = AsyncHttpClientUtil.doGet(musicApi, builder -> {

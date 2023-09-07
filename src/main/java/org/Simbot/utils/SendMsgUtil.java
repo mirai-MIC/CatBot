@@ -12,6 +12,7 @@ import love.forte.simbot.message.Messages;
 import love.forte.simbot.message.MessagesBuilder;
 import love.forte.simbot.resources.Resource;
 import net.mamoe.mirai.Bot;
+import net.mamoe.mirai.message.action.AsyncRecallResult;
 import net.mamoe.mirai.utils.ExternalResource;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
@@ -98,6 +99,31 @@ public class SendMsgUtil {
                 messagesBuilder.image(Resource.of(new URL(url)));
             } catch (final IOException e) {
                 log.error("处理图片URL出错:", e);
+            }
+            group.sendBlocking(messagesBuilder.build());
+        } catch (final Exception e) {
+            log.error("{发送图片失败}===>  \n" + e.getMessage());
+        }
+    }
+
+    /**
+     * 发送图片信息
+     *
+     * @param group  群
+     * @param id     发送人
+     * @param stream 消息流
+     */
+    public static void sendSimpleGroupImage(final Group group, final ID id, final String msg, final ByteArrayInputStream stream) {
+        try {
+            final var messagesBuilder = new MessagesBuilder();
+            messagesBuilder.at(id);
+            messagesBuilder.text("\n");
+            messagesBuilder.text(msg);
+            messagesBuilder.text("\n");
+            try {
+                messagesBuilder.image(Resource.of(stream));
+            } catch (final IOException e) {
+                log.error("处理图片流出错:", e);
             }
             group.sendBlocking(messagesBuilder.build());
         } catch (final Exception e) {

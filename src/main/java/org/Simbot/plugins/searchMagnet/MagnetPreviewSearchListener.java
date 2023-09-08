@@ -29,7 +29,7 @@ import java.util.Optional;
  */
 @Component
 @Slf4j
-public class MagnetSearchListener {
+public class MagnetPreviewSearchListener {
 
     @Listener
     @Filter(value = "/磁力 ", matchType = MatchType.TEXT_STARTS_WITH)

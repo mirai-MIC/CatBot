@@ -37,9 +37,10 @@ public class AsyncHttpClientUtil {
     static {
         //添加jvm关闭钩子,保证程序退出时关闭连接池
         Runtime.getRuntime().addShutdownHook(new Thread(AsyncHttpClientUtil::shutdown));
+        client = asyncHttpClient(buildClientConfig());
     }
 
-    private static final AsyncHttpClient client = asyncHttpClient(buildClientConfig());
+    private static final AsyncHttpClient client;
     private static EventLoopGroup eventLoopGroup;
 
     private static final ExecutorService resultHandlerExecutor = new ThreadPoolExecutor(0,//核心线程数 设置为0 保证线程池中没有线程时销毁线程池 保证内存占用最小

@@ -60,6 +60,7 @@ public class messageListens {
             if (message instanceof final SimbotOriginalMiraiMessage simbotOriginalMiraiMessage) {
                 try {
                     final String simpleApp = simbotOriginalMiraiMessage.getOriginalMiraiMessage().contentToString();
+                    log.info("收到SimbotOriginalMiraiMessage消息: {}", simpleApp);
                     final Gson gson = GsonTypeAdapter.getGsonTypeBuilder().create();
                     final MessageData messageData = gson.fromJson(simpleApp, MessageData.class);
                     final MessageData.MetaDTO.Detail1DTO detail1 = messageData.getMeta().getDetail1();

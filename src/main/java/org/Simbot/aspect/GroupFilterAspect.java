@@ -10,33 +10,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 
 @Component
 @Aspect
 @Slf4j
 public class GroupFilterAspect {
 
-    private final List<String> list;
+    private final Set<String> set;
 
     // 通过构造函数注入
     @Autowired
     public GroupFilterAspect(@Value("${group.whiteList}") final String groupWhiteList) {
-        this.list = Arrays.asList(groupWhiteList.split(","));
+        this.set = Set.of(groupWhiteList.split(","));
     }
 
     @Around("@annotation(love.forte.simboot.annotation.Listener)")
     public Object around(final ProceedingJoinPoint joinPoint) throws Throwable {
-        if (CollUtil.isEmpty(list)) {// 如果白名单为空，直接返回
+        if (CollUtil.isEmpty(set)) {// 如果白名单为空，直接返回
             return joinPoint.proceed();
         }
         final Object[] args = joinPoint.getArgs();
         for (final Object arg : args) {
             if (arg instanceof final GroupMessageEvent event) {
                 final String groupId = event.getGroup().getId().toString();
-                if (list.contains(groupId)) {
-                    log.info("groupId: {} is in the list", groupId);
+                if (set.contains(groupId)) {
+//                    log.info("groupId: {} is in the list", groupId);
                     return joinPoint.proceed();
                 } else {
                     return null;  // 返回Null或者其它默认值

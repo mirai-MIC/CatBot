@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.function.BiConsumer;
@@ -66,11 +67,11 @@ public class AsyncHttpClientUtil {
                 .setMaxConnectionsPerHost(100)//单个服务器最大连接数,不设置此值,爬虫会创建大量的连接,导致服务器拒绝服务
                 .setUseInsecureTrustManager(true)//是否信任所有ssl链接
                 .setEventLoopGroup(eventLoopGroup)//根据当前系统设置eventLoopGroup
-                .setConnectTimeout(60 * 1000)//连接超时时间
-                .setReadTimeout(60 * 1000)//读取超时时间
+                .setConnectTimeout(Duration.ofSeconds(60))//连接超时时间
+                .setReadTimeout(Duration.ofSeconds(60))//读取超时时间
                 .setHandshakeTimeout(30 * 1000)//握手超时时间
-                .setPooledConnectionIdleTimeout(30 * 1000)//连接池中连接的空闲时间
-                .setConnectionTtl(30 * 1000)//连接存活时间
+                .setPooledConnectionIdleTimeout(Duration.ofSeconds(30))//连接池中连接的空闲时间
+                .setConnectionTtl(Duration.ofSeconds(30))//连接存活时间
                 .setMaxRequestRetry(3)//最大重试次数
                 .setUseNativeTransport(osName.toLowerCase().contains("linux"))//是否用epoll，仅linux系统支持
                 .build();
@@ -137,6 +138,14 @@ public class AsyncHttpClientUtil {
                             final int width = image.getWidth();
                             final int height = image.getHeight();
 
+                            if (change) {
+                                // 随机生成一个像素点的位置
+                                final ThreadLocalRandom random = ThreadLocalRandom.current();
+                                final int x = random.nextInt(width);
+                                final int y = random.nextInt(height);
+                                image.setRGB(x, y, Color.RED.getRGB());
+                            }
+
                             if (compress && sizeInKB >= 500) {
                                 final int newWidth = (int) (width * scale);
                                 final int newHeight = (int) (height * scale);
@@ -145,14 +154,6 @@ public class AsyncHttpClientUtil {
                                 final BufferedImage bufferedScaledImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
                                 bufferedScaledImage.getGraphics().drawImage(scaledImage, 0, 0, null);
                                 image = bufferedScaledImage;
-                            }
-
-                            if (change) {
-                                // 随机生成一个像素点的位置
-                                final ThreadLocalRandom random = ThreadLocalRandom.current();
-                                final int x = random.nextInt(width);
-                                final int y = random.nextInt(height);
-                                image.setRGB(x, y, Color.RED.getRGB());
                             }
 
                             // 写回 ByteArrayOutputStream
@@ -167,7 +168,7 @@ public class AsyncHttpClientUtil {
                             log.error("下载 imgUrl:{} 失败", imgUrl, throwable);
                             return null;
                         });
-        return png.get(20, TimeUnit.SECONDS);
+        return png.get(30, TimeUnit.SECONDS);
     }
 
     /**

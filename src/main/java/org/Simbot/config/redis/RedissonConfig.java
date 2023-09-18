@@ -6,7 +6,7 @@ import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
-import org.redisson.codec.JsonJacksonCodec;
+import org.redisson.codec.Kryo5Codec;
 import org.redisson.config.Config;
 import org.redisson.config.TransportMode;
 import org.springframework.context.annotation.Bean;
@@ -40,7 +40,9 @@ public class RedissonConfig {
         final Config config = new Config();
         config.useSingleServer().setAddress("redis://localhost:6379");
 
-        config.setCodec(new JsonJacksonCodec())
+        config
+//                .setCodec(new JsonJacksonCodec())//使用JsonJacksonCodec序列化 速度较慢 但是可以显示为json格式
+                .setCodec(new Kryo5Codec())//使用Kryo5Codec序列化 速度更快 但是显示为二进制格式 占用内存更小
                 .setTransportMode(setTransportMode())
                 .setEventLoopGroup(setEventLoopGroup());
 

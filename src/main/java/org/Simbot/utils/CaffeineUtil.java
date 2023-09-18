@@ -1,5 +1,7 @@
 package org.Simbot.utils;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.Cache;
 import jakarta.annotation.Resource;
 import org.Simbot.config.caffeine.CacheDataWrapper;
@@ -36,6 +38,16 @@ public class CaffeineUtil {
         final CacheDataWrapper cacheDataWrapper = caffeineCache.getIfPresent(key);
         if (cacheDataWrapper != null) {
             return Optional.ofNullable(clazz.cast(cacheDataWrapper.getData()));
+        }
+        return Optional.empty();
+    }
+
+    public <T> Optional<T> get(final String key, final TypeReference<T> typeReference) {
+        final CacheDataWrapper cacheDataWrapper = caffeineCache.getIfPresent(key);
+        if (cacheDataWrapper != null) {
+            final ObjectMapper objectMapper = new ObjectMapper();
+            final T data = objectMapper.convertValue(cacheDataWrapper.getData(), typeReference);
+            return Optional.ofNullable(data);
         }
         return Optional.empty();
     }

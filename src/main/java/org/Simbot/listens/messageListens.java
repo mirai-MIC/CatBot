@@ -39,25 +39,19 @@ public class messageListens {
         for (final Message.Element<?> message : event.getMessageContent().getMessages()) {
             if (message instanceof final Image<?> image) {
                 log.info(MessageFormat.format("[图片消息: {0} ]", image.getResource().getName()));
-            }
-            if (message instanceof final MiraiForwardMessage miraiForwardMessage) {
-                miraiForwardMessage.getOriginalForwardMessage().getNodeList().forEach(a -> {
-                    log.info(MessageFormat.format("[转发消息: \n内容: {0} ]", a.getMessageChain()));
-                });
-            }
-            if (message instanceof final Face face) {
+            } else if (message instanceof final MiraiForwardMessage miraiForwardMessage) {
+                miraiForwardMessage.getOriginalForwardMessage().getNodeList().stream().map(a -> MessageFormat.format("[转发消息: \n内容: {0} ]", a.getMessageChain())).forEach(log::info);
+            } else if (message instanceof final Face face) {
                 log.info(MessageFormat.format("[Face表情: {0} ]", face.getId()));
-            }
-            if (message instanceof final At at) {
+            } else if (message instanceof final At at) {
                 final ID targetId = at.getTarget();
                 final GroupMember targetMember = group.getMember(targetId);
                 if (targetMember == null) {
                     log.info(MessageFormat.format("[AT消息:未找到目标用户: {0} ]", targetId));
                 } else {
-                    log.info(MessageFormat.format("[AT消息: @{0}( {1} )", targetMember.getNickOrUsername(), targetMember.getId()));
+                    log.info(MessageFormat.format("[AT消息: @{0}( {1} ) ]", targetMember.getNickOrUsername(), targetMember.getId()));
                 }
-            }
-            if (message instanceof final SimbotOriginalMiraiMessage simbotOriginalMiraiMessage) {
+            } else if (message instanceof final SimbotOriginalMiraiMessage simbotOriginalMiraiMessage) {
                 try {
                     final String simpleApp = simbotOriginalMiraiMessage.getOriginalMiraiMessage().contentToString();
                     log.info("收到SimbotOriginalMiraiMessage消息: {}", simpleApp);

@@ -63,9 +63,14 @@ public class PixivRankScraper {
     }
 
     @SneakyThrows
-    private SyndFeed getRankRssData(final String type, final String date) {
+    private SyndFeed getRankRssData(final String type, String date) {
         final RankType rankType = RankType.getRankTypeByDesc(type);
-        final String url = RANK_URL + rankType.getData() + "/" + date;
+        final String typeData = rankType.getData();
+        if (StrUtil.isBlank(date)) {
+            date = rankType.getDefaultDate();
+        }
+        final String url = RANK_URL + typeData + "/" + date;
+        log.info("rss url:{}", url);
         final InputStream stream = AsyncHttpClientUtil.doGet(url).getValue().getResponseBodyAsStream();
         return new SyndFeedInput().build(new XmlReader(stream));
     }

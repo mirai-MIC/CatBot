@@ -1,6 +1,7 @@
 package org.Simbot.plugins.rss.pixiv;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
@@ -57,6 +58,7 @@ public class PixivRankScraper {
 
         if (CollUtil.isNotEmpty(list)) {
             caffeineUtil.put(type + ":" + date, list);
+            log.info("Get data from network");
             return list;
         }
         return List.of();

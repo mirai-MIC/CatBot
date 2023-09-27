@@ -1,5 +1,6 @@
 package org.Simbot.plugins.avSearch;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -31,7 +32,7 @@ public class ArzonScraper {
         final String body = pair.getValue().getResponseBody();
         final JSONObject entries = JSONUtil.parseObj(body);
         final JSONArray array = entries.getJSONArray("data");
-        if (array.isEmpty()) {
+        if (CollUtil.isEmpty(array)) {
             log.info("array is empty");
             return null;
         }

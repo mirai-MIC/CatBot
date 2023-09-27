@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simboot.annotation.Filter;
+import love.forte.simboot.annotation.FilterValue;
 import love.forte.simboot.annotation.Listener;
 import love.forte.simboot.filter.MatchType;
 import love.forte.simbot.component.mirai.message.MiraiForwardMessageBuilder;
@@ -50,32 +51,28 @@ public class AVListener {
     private final AvPreviewMapper avPreviewMapper;
 
     @Listener
-    @Filter(value = "/av ", matchType = MatchType.TEXT_STARTS_WITH)
+    @Filter(value = "/av {{text}}", matchType = MatchType.REGEX_CONTAINS)
     @SneakyThrows
-    public void getAVMessage(@NotNull final GroupMessageEvent event) {
+    public void getAVMessage(@NotNull final GroupMessageEvent event, @FilterValue("text") String text) {
         //获取用户输入的内容
-        String next = event.getMessageContent().getPlainText()
-                .substring(4)
-                .toUpperCase(Locale.ROOT)
-                //去除空格
-                .replaceAll("\\s", "");
-        if (StrUtil.isBlank(next)) {
+        text = text.toUpperCase(Locale.ROOT).replaceAll("\\s", "");
+        if (StrUtil.isBlank(text)) {
             SendMsgUtil.sendSimpleGroupMsg(event, "请输入番号");
             return;
         }
-        if (!next.startsWith("FC2")) {
+        if (!text.startsWith("FC2")) {
             //将输入的内容中间的数字前面加上"-",如果有则不加
-            next = next.replaceFirst("(?<=[a-zA-Z])(?!-)(?=\\d)", "-");
+            text = text.replaceFirst("(?<=[a-zA-Z])(?!-)(?=\\d)", "-");
         } else {
-            next = next.replaceFirst("^FC2(?!-)", "FC2-");
+            text = text.replaceFirst("^FC2(?!-)", "FC2-");
         }
 
         //构建消息链
         final var chain = new MiraiForwardMessageBuilder(ForwardMessage.DisplayStrategy.Default);
 
-        if (next.startsWith("FC2")) {
+        if (text.startsWith("FC2")) {
             SendMsgUtil.withdrawMessage(SendMsgUtil.sendSimpleGroupMsg(event, "正在检索fc2中，请稍候"), 15);
-            final List<FC2SearchEntity> list = FC2Scraper.searchByAvNum(next);
+            final List<FC2SearchEntity> list = FC2Scraper.searchByAvNum(text);
             if (CollUtil.isEmpty(list) || null == list.get(0)) {
                 SendMsgUtil.sendSimpleGroupMsg(event, "没有找到相关信息");
                 return;
@@ -90,11 +87,11 @@ public class AVListener {
         final AvDetail avDetail;
         final List<String> previewImages;
         //通过番号获取详情
-        final AvDetail avDetailByDB = avDetailMapper.selectByAvNum(next);
+        final AvDetail avDetailByDB = avDetailMapper.selectByAvNum(text);
         if (BeanUtil.isEmpty(avDetailByDB)) {
             //数据库没有, 通过javbus获取详情
             flag = true;
-            avDetail = avDetailsScraper.getAVDetail(next);
+            avDetail = avDetailsScraper.getAVDetail(text);
         } else {
             flag = false;
             avDetail = avDetailByDB;
@@ -103,7 +100,7 @@ public class AVListener {
         SendMsgUtil.withdrawMessage(messageReceipt, 15);
         if (avDetail == null) {
 //            SendMsgUtil.sendSimpleGroupMsg(event, "没有找到相关信息");
-            getAvDetailByArzon(next, event);
+            getAvDetailByArzon(text, event);
             return;
         }
         //下载封面
@@ -127,7 +124,7 @@ public class AVListener {
                 previewImages = avDetail.getPreviewImages();
             }
         } else {
-            previewImages = avPreviewMapper.selectByAvNum(next);
+            previewImages = avPreviewMapper.selectByAvNum(text);
         }
         if (CollUtil.isNotEmpty(previewImages)) {
             avDetail.setPreviewImages(previewImages);

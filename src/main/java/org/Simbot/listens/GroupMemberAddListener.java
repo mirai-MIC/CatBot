@@ -71,9 +71,7 @@ public class GroupMemberAddListener {
     @Listener
     public void acceptGroup(JoinRequestEvent requestEvent) {
 //        System.out.println(requestEvent.getInviter());
-        if (!Objects.requireNonNull(requestEvent.getInviter()).getId().equals(Msg.Id(getMasterId()))) {
-            return;
-        }
+        if (!Objects.requireNonNull(requestEvent.getInviter()).getId().equals(Msg.Id(getMasterId()))) return;
 //        System.out.println(requestEvent);
 
 //        if (Objects.requireNonNull(requestEvent.getInviter()).getId().equals(Msg.Id(getMasterId()))) {
@@ -82,8 +80,6 @@ public class GroupMemberAddListener {
 
         requestEvent.acceptAsync();
         log.info(Objects.requireNonNull(requestEvent.getInviter()).getUsername() + "\t\t\t邀请机器人加入群");
-//        groupJoinRequestEvent.acceptAsync().join();
-//        log.info(groupJoinRequestEvent.getInviter().getUsername());
     }
 
 }

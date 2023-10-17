@@ -149,6 +149,14 @@ user.searchImage=saucenao.com注册并复制key
 
 - [listener](src/main/java/org/Simbot/listens/ListenGroup.java) 包下为一些监听函数示例。阅读它们的注释，并可以试着修改它们。
 
+## 贡献你的星星！
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=mirai-MIC/CatBot&type=Date)](https://star-history.com/#mirai-MIC/CatBot&Date)
+
+
+
 ### 运行
 
 执行[SimbotApp](src/main/java/org/Simbot/SimbotApp.java) 中的main方法。

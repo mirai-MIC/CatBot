@@ -1,9 +1,11 @@
 package org.Simbot.plugins.youthlearning;
 
 import com.google.gson.Gson;
+import lombok.Getter;
 import love.forte.simboot.annotation.ContentTrim;
 import love.forte.simboot.annotation.Filter;
 import love.forte.simboot.annotation.Listener;
+import love.forte.simbot.component.mirai.message.MiraiForwardMessageBuilder;
 import love.forte.simbot.event.GroupMessageEvent;
 import love.forte.simbot.message.MessagesBuilder;
 import love.forte.simbot.resources.Resource;
@@ -22,9 +24,9 @@ import java.net.URL;
  * @packAge: org.Simbot.Plugins.youthBigLearning
  * @date 2022/12/6 20:16
  */
+@Getter
 @Component
 public class getLearning {
-    @lombok.Getter
     @Deprecated
     String Lear = new properties().getProperties("cache/application.properties", "api.lear");
 
@@ -45,5 +47,13 @@ public class getLearning {
         builder.image(Resource.of(new URL(gsonDataData.getImg())));
         event.getSource().sendBlocking(builder.build());
 
+
+
+
+        MiraiForwardMessageBuilder miraiForwardMessageBuilder = new MiraiForwardMessageBuilder();
+        builder.at(event.getAuthor().getId());
+        builder.text("你好");
+        miraiForwardMessageBuilder.add(event.getAuthor().getId(), event.getAuthor().getNickname(), builder.build());
+        event.replyBlocking(miraiForwardMessageBuilder.build());
     }
 }

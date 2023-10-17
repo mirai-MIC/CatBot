@@ -43,6 +43,7 @@
 //            return;
 //        } else {
 //            try {
+//
 //                data data = new Gson().fromJson(get(getAiUrl() + plainText), data.class);
 //                builder.at(event.getAuthor().getId());
 //                builder.append("\t\t" + data.getResponseText());

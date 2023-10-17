@@ -1,9 +1,11 @@
 package org.Simbot.plugins.searchImage;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.Getter;
 
 import java.util.List;
 
+@Getter
 public class data {
 
     @SerializedName("header")
@@ -11,16 +13,8 @@ public class data {
     @SerializedName("results")
     private List<ResultsDTO> results;
 
-    public HeaderDTO getHeader() {
-        return header;
-    }
-
     public void setHeader(HeaderDTO header) {
         this.header = header;
-    }
-
-    public List<ResultsDTO> getResults() {
-        return results;
     }
 
     public void setResults(List<ResultsDTO> results) {

@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 
-        <simbot.version>3.2.0</simbot.version>
+        <simbot.version>3.3.0-beta1</simbot.version>
         <simbot-component-mirai.version>3.2.0.0</simbot-component-mirai.version>
         <springboot-version>3.0.5</springboot-version>
     </properties>
@@ -87,7 +87,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.32</version>
+            <version>8.0.33</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>

@@ -49,13 +49,4 @@ public class Msg {
         return ID.$(id.trim());
     }
 
-    /**
-     * 未知用途
-     *
-     * @param time
-     * @return
-     */
-    public static long longId(String time) {
-        return Long.parseLong(time.trim());
-    }
 }

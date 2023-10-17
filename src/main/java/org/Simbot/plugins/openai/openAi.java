@@ -1,6 +1,7 @@
 package org.Simbot.plugins.openai;
 
 import com.google.gson.Gson;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simboot.annotation.Filter;
 import love.forte.simboot.annotation.Listener;
@@ -16,10 +17,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Scanner;
 
+@Getter
 @Component
 @Slf4j
 public class openAi {
-    @lombok.Getter
     @Deprecated
     String properties = new properties().getProperties("cache/application.properties", "user.Master");
 

@@ -3,7 +3,9 @@ package org.Simbot.plugins.avSearch;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.Simbot.plugins.avSearch.entity.AvDetail;
+import org.Simbot.utils.AsyncHttpClientUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,6 +22,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class AVDetailsScraper {
 
     private static final String BASE_URL = "https://www.javbus.com/";
@@ -35,7 +38,9 @@ public class AVDetailsScraper {
         final String url = BASE_URL + avNumber;
         final Document doc;
         try {
-            doc = Jsoup.connect(url).get();
+            final var responsePair = AsyncHttpClientUtil.doGet(url);
+            final String body = responsePair.getValue().getResponseBody();
+            doc = Jsoup.parse(body);
         } catch (final Exception e) {
             return null;
         }
@@ -77,7 +82,12 @@ public class AVDetailsScraper {
     }
 
     private String getReleaseDate(final Document doc) {
-        return doc.select(".info p").get(1).text().split(":")[1].trim();
+        try {
+            return doc.select(".info p").get(1).text().split(":")[1].trim();
+        } catch (final Exception e) {
+            log.error("获取发行日期失败", e);
+            return DateUtil.now();
+        }
     }
 
     private List<String> getCategories(final Document doc) {
@@ -89,18 +99,22 @@ public class AVDetailsScraper {
 
     private String getCoverImage(final Document doc) {
         final Matcher m = IMAGE_PATTERN.matcher(doc.html());
-        return m.find() ? BASE_URL + m.group(1) : "";
+        if (m.find()) {
+            final String s = m.group(1);
+            if (s.startsWith("http") || s.startsWith("https")) {
+                return s;
+            }
+            return BASE_URL + s;
+        }
+        return "";
     }
 
     private List<String> getPreviewImages(final Document doc) {
         final List<String> images = doc.select("#sample-waterfall a.sample-box").eachAttr("href");
         final var strings = new ArrayList<String>();
         for (final String image : images) {
-            if (!image.startsWith("http")) {// 有些图片不是外链的, 缺少前缀
-                strings.add(BASE_URL + image);
-            } else {
-                strings.add(image);
-            }
+            // 有些图片不是外链的, 缺少前缀
+            strings.add(image.startsWith("http") || image.startsWith("https") ? image : BASE_URL + image);
         }
 //        Collections.shuffle(strings);
         return strings;

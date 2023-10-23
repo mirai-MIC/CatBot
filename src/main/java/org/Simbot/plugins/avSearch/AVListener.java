@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -22,6 +23,7 @@ import org.Simbot.mybatisplus.mapper.AvPreviewMapper;
 import org.Simbot.plugins.avSearch.entity.AvDetail;
 import org.Simbot.plugins.avSearch.entity.CustomDetailEntity;
 import org.Simbot.plugins.avSearch.entity.FC2SearchEntity;
+import org.Simbot.plugins.avSearch.entity.NetflavEntity;
 import org.Simbot.utils.AsyncHttpClientUtil;
 import org.Simbot.utils.SendMsgUtil;
 import org.jetbrains.annotations.NotNull;
@@ -118,13 +120,23 @@ public class AVListener {
 //        final var previewImages = avDetail.getPreviewImages();//javbus方式获取预览图, 有水印, 换为netflav方式获取
         if (flag) {
             final List<String> netflavPreviewImgs = netflavDetailsScraper.getPreviewImages(avDetail.getAvNum());
-            if (netflavPreviewImgs.size() > 1 || netflavPreviewImgs.size() >= avDetail.getPreviewImages().size()) {
+            if (CollUtil.isEmpty(avDetail.getPreviewImages())) {
                 previewImages = netflavPreviewImgs;
             } else {
                 previewImages = avDetail.getPreviewImages();
             }
+//            if (netflavPreviewImgs.size() > 1 || netflavPreviewImgs.size() >= avDetail.getPreviewImages().size()) {
+//                previewImages = netflavPreviewImgs;
+//            } else {
+//                previewImages = avDetail.getPreviewImages();
+//            }
         } else {
-            previewImages = avPreviewMapper.selectByAvNum(text);
+            final List<String> list = avPreviewMapper.selectByAvNum(text);
+            if (CollUtil.isEmpty(list)) {
+                previewImages = netflavDetailsScraper.getPreviewImages(avDetail.getAvNum());
+            } else {
+                previewImages = list;
+            }
         }
         if (CollUtil.isNotEmpty(previewImages)) {
             avDetail.setPreviewImages(previewImages);
@@ -212,6 +224,51 @@ public class AVListener {
         //撤回消息
 //        SendMsgUtil.withdrawMessage(sendAsync.get(30, TimeUnit.SECONDS), 55);
     }
+
+    @Listener
+    @Filter(value = "/女优 {{text}}", matchType = MatchType.REGEX_CONTAINS)
+    @SneakyThrows
+    public void searchAV(@NotNull final GroupMessageEvent event, @FilterValue("text") String text) {
+        //获取用户输入的内容
+        text = text.toUpperCase(Locale.ROOT).replaceAll("\\s", "");
+        if (StrUtil.isBlank(text)) {
+            SendMsgUtil.sendSimpleGroupMsg(event, "请输入女优名字");
+            return;
+        }
+        SendMsgUtil.withdrawMessage(SendMsgUtil.sendReplyGroupMsg(event, "正在检索中，请稍候"), 15);
+        final JSONArray response = netflavDetailsScraper.getSearchResponse(text);
+        if (CollUtil.isEmpty(response)) {
+            SendMsgUtil.sendSimpleGroupMsg(event, "没有找到相关信息");
+            return;
+        }
+        final var chain = new MiraiForwardMessageBuilder(ForwardMessage.DisplayStrategy.Default);
+        final List<NetflavEntity> list = response.toList(NetflavEntity.class);
+        list.parallelStream()
+                .unordered()
+                .distinct()
+                .map(this::getActorMessageBuilder)
+                .forEach(builder -> chain.add(event.getBot(), builder.build()));
+        event.getSource().sendBlocking(chain.build());
+    }
+
+    @SneakyThrows
+    private MessagesBuilder getActorMessageBuilder(final NetflavEntity entity) {
+        final MessagesBuilder builder = new MessagesBuilder();
+        final var stringBuilder = new StringBuilder()
+                .append("番号 : ").append(entity.getCode()).append("\n")
+                .append("标题 : ").append(entity.getTitle()).append("\n")
+                .append("发行日期 : ").append(entity.getSourceDate()).append("\n")
+                .append("封面 : " + "\n");
+        builder.text(stringBuilder.toString());
+        final var stream = AsyncHttpClientUtil.downloadImage(entity.getPreview(), true);
+        if (stream == null) {
+            builder.text("无封面或下载封面失败");
+        } else {
+            builder.image(Resource.of(stream));
+        }
+        return builder;
+    }
+
 
     @SneakyThrows
     private void getAvDetailByArzon(final String avNum, final GroupMessageEvent event) {

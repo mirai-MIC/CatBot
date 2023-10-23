@@ -68,16 +68,7 @@ public class NetflavDetailsScraper {
                 return redisCache;
             }
             log.info("从网络中获取 {} 的详情", avNum);
-            //发送请求
-            final var responsePair = AsyncHttpClientUtil.doGet(searchUrl + avNum);
-            final JSONObject obj = JSONUtil.parseObj(responsePair.getValue().getResponseBody());
-            final JSONObject jsonObject = obj.getJSONObject("result");
-            if (jsonObject.getInt("total") <= 0) {
-                log.info("没有找到相关信息");
-                return null;
-            }
-            //获取搜索结果
-            final JSONArray docs = jsonObject.getJSONArray("docs");
+            final JSONArray docs = getSearchResponse(avNum);
             //获取第一个结果,即最匹配的结果
             final JSONObject videoEntity = docs.getJSONObject(0);
             //获取视频id
@@ -86,9 +77,12 @@ public class NetflavDetailsScraper {
             final var videoResp = AsyncHttpClientUtil.doGet(videoUrl + videoId);
             //获取返回结果
             entries = JSONUtil.parseObj(videoResp.getValue().getResponseBody());
-            //缓存
-            mapCache.fastPutAsync(avNum, entries, 1, TimeUnit.HOURS);
-            caffeineUtil.put(avNum, entries, 1, TimeUnit.HOURS);
+            if (!entries.isEmpty()) {
+                //缓存
+                log.info("缓存 {} 的详情", avNum);
+                mapCache.fastPutAsync(avNum, entries, 1, TimeUnit.HOURS);
+                caffeineUtil.put(avNum, entries, 1, TimeUnit.HOURS);
+            }
             return entries;
         } catch (final Exception e) {
             log.error("获取视频详情失败", e);
@@ -267,5 +261,24 @@ public class NetflavDetailsScraper {
             result.append(matcher.group());
         }
         return result.toString();
+    }
+
+    /**
+     * 获取搜索结果
+     *
+     * @param searchParam 搜索参数
+     * @return 搜索结果
+     */
+    public JSONArray getSearchResponse(final String searchParam) {
+        //发送请求
+        final var responsePair = AsyncHttpClientUtil.doGet(searchUrl + searchParam);
+        final JSONObject obj = JSONUtil.parseObj(responsePair.getValue().getResponseBody());
+        final JSONObject jsonObject = obj.getJSONObject("result");
+        if (jsonObject.getInt("total") <= 0) {
+            log.info("没有找到相关信息");
+            return null;
+        }
+        //获取搜索结果
+        return jsonObject.getJSONArray("docs");
     }
 }

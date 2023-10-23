@@ -59,11 +59,11 @@
         </dependency>
         <!--        导入本地jar-->
         <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>fix</artifactId>
-            <version>1.8.4</version>
+            <groupId>top.mrxiaom</groupId>
+            <artifactId>qsign</artifactId>
+            <version>1.2.0</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/fix-protocol-version-1.11.0.mirai2.jar</systemPath>
+            <systemPath>${project.basedir}/lib/qsign-1.2.0-beta-dev-42d1de7.mirai2.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
